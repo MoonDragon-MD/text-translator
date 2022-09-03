@@ -172,8 +172,6 @@ var LanguageChooser = GObject.registerClass({
             track_hover: true,
             reactive: true,
             style_class: "translator-language-chooser-button",
-            x_fill: false,
-            y_fill: false,
             x_expand: true,
             y_expand: false
         });
