@@ -9,7 +9,7 @@ const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
 const Utils = Me.imports.utils;
 
-const MESSAGE_TYPES = {
+var MESSAGE_TYPES = {
     error: 0,
     info: 1,
     success: 2
@@ -114,10 +114,10 @@ var StatusBar = class StatusBar {
         this.actor.show();
 
         if (message.has_spinner) {
-            this._spinner.actor.show();
+            this._spinner.get_child().show();
             this._spinner.play();
         } else {
-            this._spinner.actor.hide();
+            this._spinner.get_child().hide();
         }
 
         Tweener.addTween(this.actor, {

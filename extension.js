@@ -36,15 +36,8 @@ ExtensionUtils.get_text_translator_extension = function() {
     return Me;
 };
 
-function launch_extension_prefs(uuid) {
-    let appSys = Shell.AppSystem.get_default();
-    let app = appSys.lookup_app("gnome-shell-extension-prefs.desktop");
-    let info = app.get_app_info();
-    let timestamp = global.display.get_current_time_roundtrip();
-    info.launch_uris(
-        ["extension:///" + uuid],
-        global.create_app_launch_context(timestamp, -1)
-    );
+function launch_extension_prefs() {
+    ExtensionUtils.openPrefs();
 }
 
 const TIMEOUT_IDS = {
@@ -118,7 +111,7 @@ const TranslatorPanelButton = GObject.registerClass(
 
             this._menu_open_prefs = new PopupMenu.PopupMenuItem("Preferences");
             this._menu_open_prefs.connect("activate", () => {
-                launch_extension_prefs(Me.uuid);
+                launch_extension_prefs();
             });
             this.menu.addMenuItem(this._menu_open_prefs);
         }
@@ -143,9 +136,9 @@ const TranslatorPanelButton = GObject.registerClass(
 
         set_focus(focus) {
             if (focus) {
-                this.actor.add_style_pseudo_class("active");
+                this.get_first_child().add_style_pseudo_class("active");
             } else {
-                this.actor.remove_style_pseudo_class("active");
+                this.get_first_child().remove_style_pseudo_class("active");
             }
         }
 
@@ -778,7 +771,7 @@ const TranslatorExtension = class TranslatorExtension {
             button_params,
             () => {
                 this.close();
-                launch_extension_prefs(Me.uuid);
+                launch_extension_prefs();
             }
         );
 

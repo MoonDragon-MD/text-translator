@@ -107,7 +107,9 @@ const TranslatorProvidersWidget = GObject.registerClass(
                 this.POSITIONS.last_used_label.rowspan
             );
             this._last_used = new Gtk.Switch({
-                active: false
+                active: false,
+                hexpand: false,
+                halign: Gtk.Align.END,
             });
             this._last_used.connect("notify::active", s => {
                 let active = s.get_active();
@@ -137,7 +139,7 @@ const TranslatorProvidersWidget = GObject.registerClass(
         }
 
         _load_default_source(languages, active_id) {
-            this._source_languages_combo.destroy();
+            this._source_languages_combo.remove_all();
 
             this._source_languages_combo = new Gtk.ComboBoxText();
             this._source_languages_combo.connect("changed", combo => {
@@ -169,14 +171,6 @@ const TranslatorProvidersWidget = GObject.registerClass(
 
             this._source_languages_combo.set_active_id(active_id);
 
-            let source_wrap_width = Math.round(
-                Object.keys(languages).length / 17
-            );
-
-            if (source_wrap_width > 1) {
-                this._source_languages_combo.set_wrap_width(source_wrap_width);
-            }
-
             this._source_languages_combo.show();
 
             this.attach(
@@ -189,7 +183,7 @@ const TranslatorProvidersWidget = GObject.registerClass(
         }
 
         _load_default_target(languages, active_id) {
-            this._target_languages_combo.destroy();
+            this._target_languages_combo.remove_all();
 
             this._target_languages_combo = new Gtk.ComboBoxText();
             this._target_languages_combo.connect("changed", combo => {
@@ -212,14 +206,6 @@ const TranslatorProvidersWidget = GObject.registerClass(
             }
 
             this._target_languages_combo.set_active_id(active_id);
-
-            let target_wrap_width = Math.round(
-                Object.keys(languages).length / 17
-            );
-
-            if (target_wrap_width > 1) {
-                this._target_languages_combo.set_wrap_width(target_wrap_width);
-            }
 
             this._target_languages_combo.show();
 
@@ -346,8 +332,8 @@ const TranslatorKeybindingsWidget = GObject.registerClass(
             );
             this._tree_view.append_column(keybinding_column);
 
-            scrolled_window.add(this._tree_view);
-            this.add(scrolled_window);
+            scrolled_window.set_child(this._tree_view);
+            this.append(scrolled_window);
 
             this._refresh();
         }
@@ -356,7 +342,7 @@ const TranslatorKeybindingsWidget = GObject.registerClass(
             this._store.clear();
 
             for (let settings_key in this._keybindings) {
-                let [key, mods] = Gtk.accelerator_parse(
+                let [_, key, mods] = Gtk.accelerator_parse(
                     Utils.SETTINGS.get_strv(settings_key)[0]
                 );
 
@@ -423,7 +409,9 @@ const TranslatorPrefsGrid = GObject.registerClass(
 
         add_boolean(text, key) {
             let item = new Gtk.Switch({
-                active: this._settings.get_boolean(key)
+                active: this._settings.get_boolean(key),
+                hexpand: false,
+                halign: Gtk.Align.END,
             });
             this._settings.bind(
                 key,
@@ -506,7 +494,7 @@ const TranslatorPrefsGrid = GObject.registerClass(
                 hexpand: true,
                 halign: Gtk.Align.START
             });
-            label.set_line_wrap(wrap || false);
+            label.set_wrap(wrap || false);
 
             this.attach(label, 0, this._rownum, 1, 1); // col, row, colspan, rowspan
             this.attach(widget, 1, this._rownum, 1, 1);
@@ -588,10 +576,10 @@ const TextTranslatorPrefsWidget = GObject.registerClass(
                 transition_duration: 500
             });
             let stack_switcher = new Gtk.StackSwitcher({
-                margin_left: 5,
+                margin_start: 5,
                 margin_top: 5,
                 margin_bottom: 5,
-                margin_right: 5,
+                margin_end: 5,
                 stack: stack
             });
 
@@ -604,8 +592,8 @@ const TextTranslatorPrefsWidget = GObject.registerClass(
                 keybindings.name
             );
 
-            this.add(stack_switcher);
-            this.add(stack);
+            this.append(stack_switcher);
+            this.append(stack);
         }
 
         _get_main_page() {
@@ -738,7 +726,7 @@ function init() {
 
 function buildPrefsWidget() {
     let widget = new TextTranslatorPrefsWidget();
-    widget.show_all();
+    widget.show();
 
     return widget;
 }

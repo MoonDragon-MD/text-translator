@@ -5,8 +5,8 @@ const Me = ExtensionUtils.getCurrentExtension();
 const PrefsKeys = Me.imports.prefs_keys;
 const Utils = Me.imports.utils;
 
-const TYPE_SOURCE = "source";
-const TYPE_TARGET = "target";
+var TYPE_SOURCE = "source";
+var TYPE_TARGET = "target";
 
 var LanguagesStats = class LanguagesStats {
     constructor() {

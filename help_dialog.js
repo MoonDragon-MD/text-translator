@@ -43,18 +43,8 @@ var HelpDialog = GObject.registerClass({}, class HelpDialog extends ModalDialog.
 
         this._close_button = this._get_close_button();
 
-        this.contentLayout.add(this._close_button, {
-            x_fill: false,
-            x_align: St.Align.END,
-            y_fill: false,
-            y_align: St.Align.START
-        });
-        this.contentLayout.add(this._label, {
-            x_fill: false,
-            x_align: St.Align.START,
-            y_fill: false,
-            y_align: St.Align.END
-        });
+        this.contentLayout.add_child(this._close_button);
+        this.contentLayout.add_child(this._label);
     }
 
     _on_key_press_event(object, event) {
