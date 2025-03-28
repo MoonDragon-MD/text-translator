@@ -1,51 +1,142 @@
-#: prefs.js:39
-msgid "Deepl API Key:"
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR MoonDragon-MD
+# This file is distributed under the same license as the Text Translator GNOME Extension package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Text Translator GNOME Extension\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-03-28 23:01+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: extension.js:41
+msgid "Text Translator"
 msgstr ""
 
-#: prefs.js:678
-msgid "Show icon:"
+#: extension.js:50
+msgid "Select Translator"
 msgstr ""
 
-#: prefs.js:680
-msgid "Sync entries scrolling:"
+#: extension.js:54
+msgid "Source Language"
 msgstr ""
 
-#: prefs.js:684
-msgid "Enable shortcuts:"
+#: extension.js:58
+msgid "Target Language"
 msgstr ""
 
-#: prefs.js:688
-msgid "Show the most used languages:"
+#: extension.js:65
+msgid "Settings"
 msgstr ""
 
-#: prefs.js:692
-msgid "Auto speak result:"
+#: extension.js:106
+#, javascript-format
+msgid "Translator: %s"
 msgstr ""
 
-#: prefs.js:702
-msgid "Font size:"
+#: extension.js:120
+msgid "Auto-detect"
 msgstr ""
 
-#: deepl_translation_provider.js:42
+#: extension.js:123 extension.js:151
+msgid "Source: Auto-detect"
+msgstr ""
+
+#: extension.js:133 extension.js:152
+#, javascript-format
+msgid "Source: %s"
+msgstr ""
+
+#: extension.js:141 extension.js:154
+#, javascript-format
+msgid "Target: %s"
+msgstr ""
+
+#: translation_providers/deepl_translation_provider.js:25
 msgid "Deepl: API key not configured or invalid"
 msgstr ""
 
-#: deepl_translation_provider.js:89
-msgid "Deepl: Error in translation request"
+#: translation_providers/deepl_translation_provider.js:35
+msgid "Deepl: New API key is invalid"
 msgstr ""
 
-#: locally_translation_provider.js:15
-msgid "translateLocally is not installed"
+#: translation_providers/deepl_translation_provider.js:69
+msgid ""
+"Deepl: API key not configured or invalid. Configure it in extension "
+"preferences."
 msgstr ""
 
-#: locally_translation_provider.js:63
-msgid "No model available for translating from %s to %s"
+#: translation_providers/deepl_translation_provider.js:74
+#: translation_providers/locally_translation_provider.js:45
+msgid "Empty text to translate"
 msgstr ""
 
-#: translators_manager.js:43
-msgid "Loaded translator: %s"
+#: translation_providers/deepl_translation_provider.js:83
+#, javascript-format
+msgid "Target language '%s' not supported by Deepl"
 msgstr ""
 
-#: translators_manager.js:146
-msgid "Translator changed to %s (previous one was not available)"
+#: translation_providers/deepl_translation_provider.js:88
+#, javascript-format
+msgid "Source language '%s' not supported by Deepl"
+msgstr ""
+
+#: translation_providers/deepl_translation_provider.js:115
+#, javascript-format
+msgid "HTTP Error %d"
+msgstr ""
+
+#: translation_providers/deepl_translation_provider.js:117
+#, javascript-format
+msgid "Deepl Error: %d - %s"
+msgstr ""
+
+#: translation_providers/deepl_translation_provider.js:129
+msgid "Invalid response from Deepl"
+msgstr ""
+
+#: translation_providers/deepl_translation_provider.js:132
+#, javascript-format
+msgid "Error parsing response: %s"
+msgstr ""
+
+#: translation_providers/deepl_translation_provider.js:136
+#, javascript-format
+msgid "Error sending request: %s"
+msgstr ""
+
+#: translation_providers/locally_translation_provider.js:16
+msgid "translateLocally is not installed or not in PATH"
+msgstr ""
+
+#: translation_providers/locally_translation_provider.js:24
+#, javascript-format
+msgid "Could not get translateLocally models: %s"
+msgstr ""
+
+#: translation_providers/locally_translation_provider.js:39
+#, javascript-format
+msgid "Available models: %s"
+msgstr ""
+
+#: translation_providers/locally_translation_provider.js:76
+#, javascript-format
+msgid "No model available to translate from %s to %s"
+msgstr ""
+
+#: translation_providers/locally_translation_provider.js:85
+msgid "Error executing translateLocally"
+msgstr ""
+
+#: translation_providers/locally_translation_provider.js:110
+#, javascript-format
+msgid "Error reading output: %s"
 msgstr ""

@@ -4,6 +4,7 @@ const Utils = Me.imports.utils;
 const Lang = imports.lang;
 const TranslationProviderBase = Me.imports.translation_provider_base;
 const Soup = imports.gi.Soup;
+const _ = Me.imports.gettext._;
 
 const ENGINE = "Deepl";
 const DEEPL_FREE_API_URL = "https://api-free.deepl.com/v2/translate";
@@ -14,13 +15,14 @@ var Translator = class Deepl extends TranslationProviderBase.TranslationProvider
         super(ENGINE + ".Translate");
         this.engine = ENGINE;
         this._httpSession = null;
+        this._initHttpSession();
         
         // Recupera la chiave API dalle impostazioni
         this.api_key = Utils.SETTINGS.get_string("deepl-api-key");
         
         // Valida la chiave API
         if (!this._validateApiKey(this.api_key)) {
-            log("Deepl: API key non valida o mancante");
+            log(_("Deepl: API key not configured or invalid"));
             this.api_key = null;
         }
         
@@ -30,7 +32,7 @@ var Translator = class Deepl extends TranslationProviderBase.TranslationProvider
             () => {
                 this.api_key = Utils.SETTINGS.get_string("deepl-api-key");
                 if (!this._validateApiKey(this.api_key)) {
-                    log("Deepl: Nuova API key non valida");
+                    log(_("Deepl: New API key is invalid"));
                     this.api_key = null;
                 }
             }
@@ -38,9 +40,8 @@ var Translator = class Deepl extends TranslationProviderBase.TranslationProvider
     }
 
     _initHttpSession() {
-        if (this._httpSession)
-            return;
-            
+        if (this._httpSession) return;
+        
         this._httpSession = new Soup.SessionAsync();
         Soup.Session.prototype.add_feature.call(
             this._httpSession,
@@ -63,26 +64,14 @@ var Translator = class Deepl extends TranslationProviderBase.TranslationProvider
         return supported.includes(code.toUpperCase());
     }
 
-    _validateApiKey(key) {
-        // Verifica che la chiave API sia nel formato corretto
-        if (!key) return false;
-        
-        // Verifica il formato della chiave API Deepl
-        // Le chiavi free iniziano con 'fx' dopo i due punti
-        const freeApiPattern = /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}:fx$/;
-        // Le chiavi pro non hanno il suffisso ':fx'
-        const proApiPattern = /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/;
-        
-        return freeApiPattern.test(key) || proApiPattern.test(key);
-    }
-
-    isAvailable() {
-        return this._validateApiKey(this.api_key);
-    }
-
     translate(source_lang, target_lang, text, callback) {
         if (!this.isAvailable()) {
-            callback(null, "Deepl: API key non configurata o non valida. Configurala nelle preferenze dell'estensione.");
+            callback(null, _("Deepl: API key not configured or invalid. Configure it in extension preferences."));
+            return;
+        }
+
+        if (!text || text.trim().length === 0) {
+            callback(null, _("Empty text to translate"));
             return;
         }
 
@@ -91,12 +80,12 @@ var Translator = class Deepl extends TranslationProviderBase.TranslationProvider
         target_lang = target_lang.toUpperCase();
 
         if (!this._validateLanguageCode(target_lang)) {
-            callback(null, `Lingua di destinazione '${target_lang}' non supportata da Deepl.`);
+            callback(null, _("Target language '%s' not supported by Deepl").format(target_lang));
             return;
         }
 
         if (source_lang !== 'AUTO' && !this._validateLanguageCode(source_lang)) {
-            callback(null, `Lingua sorgente '${source_lang}' non supportata da Deepl.`);
+            callback(null, _("Source language '%s' not supported by Deepl").format(source_lang));
             return;
         }
 
@@ -107,7 +96,6 @@ var Translator = class Deepl extends TranslationProviderBase.TranslationProvider
             "target_lang": target_lang
         };
 
-        // Aggiungi source_lang solo se non è 'AUTO'
         if (source_lang !== 'AUTO') {
             params["source_lang"] = source_lang;
         }
@@ -116,7 +104,6 @@ var Translator = class Deepl extends TranslationProviderBase.TranslationProvider
             this._initHttpSession();
             let message = Soup.form_request_new_from_hash('POST', url, params);
             
-            // Aggiungi headers necessari
             message.request_headers.append('Content-Type', 'application/x-www-form-urlencoded');
             message.request_headers.append('User-Agent', 'GnomeShellExtension/1.0');
 
@@ -125,9 +112,9 @@ var Translator = class Deepl extends TranslationProviderBase.TranslationProvider
                     let errorMsg;
                     try {
                         let error = JSON.parse(msg.response_body.data);
-                        errorMsg = error.message || `Errore HTTP ${msg.status_code}`;
+                        errorMsg = error.message || _("HTTP Error %d").format(msg.status_code);
                     } catch(e) {
-                        errorMsg = `Errore Deepl: ${msg.status_code} - ${msg.response_body.data}`;
+                        errorMsg = _("Deepl Error: %d - %s").format(msg.status_code, msg.response_body.data);
                     }
                     callback(null, errorMsg);
                     return;
@@ -139,18 +126,26 @@ var Translator = class Deepl extends TranslationProviderBase.TranslationProvider
                         let translatedText = response.translations[0].text;
                         callback(translatedText, null);
                     } else {
-                        callback(null, "Risposta non valida da Deepl");
+                        callback(null, _("Invalid response from Deepl"));
                     }
                 } catch(e) {
-                    callback(null, `Errore nel parsing della risposta: ${e.message}`);
+                    callback(null, _("Error parsing response: %s").format(e.message));
                 }
             });
         } catch(e) {
-            callback(null, `Errore nell'invio della richiesta: ${e.message}`);
+            callback(null, _("Error sending request: %s").format(e.message));
         }
     }
 
+    isAvailable() {
+        return this._validateApiKey(this.api_key);
+    }
+
     destroy() {
+        if (this._settingsChangedId) {
+            Utils.SETTINGS.disconnect(this._settingsChangedId);
+            this._settingsChangedId = 0;
+        }
         if (this._httpSession) {
             this._httpSession.abort();
             this._httpSession = null;

@@ -1,9 +1,10 @@
-// Ensure the 'Locally' translation feature correctly fetches and uses available models
 const ByteArray = imports.byteArray;
 const Lang = imports.lang;
-const Extension = imports.misc.extensionUtils.get_text_translator_extension();
-const TranslationProviderBase = Extension.imports.translation_provider_base;
+const ExtensionUtils = imports.misc.extensionUtils;
+const Me = ExtensionUtils.getCurrentExtension();
+const TranslationProviderBase = Me.imports.translation_provider_base;
 const GLib = imports.gi.GLib;
+const _ = Me.imports.gettext._;
 
 const ENGINE = "Locally";
 
@@ -12,7 +13,7 @@ var Translator = class Locally extends TranslationProviderBase.TranslationProvid
         super(ENGINE + ".Translate");
         this.engine = ENGINE;
         if (!GLib.find_program_in_path("translateLocally")) {
-            throw new Error("translateLocally non è installato o non è nel PATH.");
+            throw new Error(_("translateLocally is not installed or not in PATH"));
         }
         this.models = this.getAvailableModels();
     }
@@ -20,7 +21,7 @@ var Translator = class Locally extends TranslationProviderBase.TranslationProvid
     getAvailableModels() {
         let [success, stdout, stderr, exit_status] = GLib.spawn_command_line_sync("translateLocally -l");
         if (!success || exit_status !== 0) {
-            throw new Error("Impossibile ottenere i modelli di translateLocally: " + stderr);
+            throw new Error(_("Could not get translateLocally models: %s").format(stderr));
         }
         let models = {};
         let lines = ByteArray.toString(stdout).split("\n");
@@ -35,13 +36,13 @@ var Translator = class Locally extends TranslationProviderBase.TranslationProvid
                 models[src][tgt] = model;
             }
         }
-        log('Modelli disponibili: ' + JSON.stringify(models));
+        log(_("Available models: %s").format(JSON.stringify(models)));
         return models;
     }
 
     translate(source_lang, target_lang, text, callback) {
         if (!text || text.trim().length === 0) {
-            callback(null, "Il testo da tradurre non può essere vuoto.");
+            callback(null, _("Empty text to translate"));
             return;
         }
 
@@ -52,18 +53,15 @@ var Translator = class Locally extends TranslationProviderBase.TranslationProvid
         // Traduzione diretta
         let directModel = this.models[source_lang] && this.models[source_lang][target_lang];
         if (directModel) {
-            if (this._isValidModel(directModel)) {
-                this._translateWithModel(directModel, text, callback);
-                return;
-            }
+            this._translateWithModel(directModel, text, callback);
+            return;
         }
 
         // Traduzione a due passaggi con inglese come lingua ponte
         let bridgeLang = "en";
         let firstModel = this.models[source_lang] && this.models[source_lang][bridgeLang];
         let secondModel = this.models[bridgeLang] && this.models[bridgeLang][target_lang];
-        
-        if (firstModel && secondModel && this._isValidModel(firstModel) && this._isValidModel(secondModel)) {
+        if (firstModel && secondModel) {
             this._translateWithModel(firstModel, text, (intermediateText, error) => {
                 if (error) {
                     callback(null, error);
@@ -75,7 +73,7 @@ var Translator = class Locally extends TranslationProviderBase.TranslationProvid
         }
 
         // Nessun percorso disponibile
-        callback(null, `Nessun modello disponibile per tradurre da ${source_lang} a ${target_lang}.`);
+        callback(null, _("No model available to translate from %s to %s").format(source_lang, target_lang));
     }
 
     _translateWithModel(model, text, callback) {
@@ -84,12 +82,9 @@ var Translator = class Locally extends TranslationProviderBase.TranslationProvid
             null, command, null, GLib.SpawnFlags.SEARCH_PATH, null
         );
         if (!success) {
-            callback(null, "Errore nell'esecuzione di translateLocally.");
+            callback(null, _("Error executing translateLocally"));
             return;
         }
-
-        // Utilizziamo un buffer per accumulare l'output
-        let outputBuffer = '';
         
         let stdinStream = GLib.fdopen(stdin, "w");
         stdinStream.write(text + "\n");
@@ -106,14 +101,13 @@ var Translator = class Locally extends TranslationProviderBase.TranslationProvid
                         let [status, output] = channel.read_line();
                         if (status) {
                             let line = ByteArray.toString(output);
-                            // Ignora le linee che contengono "QVariant"
                             if (!line.includes("QVariant")) {
-                                outputBuffer += line;
+                                callback(line.trim(), null);
                             }
                         }
                         return true;
                     } catch (e) {
-                        callback(null, `Errore nella lettura dell'output: ${e}`);
+                        callback(null, _("Error reading output: %s").format(e.message));
                         return false;
                     }
                 }
@@ -121,18 +115,15 @@ var Translator = class Locally extends TranslationProviderBase.TranslationProvid
                 if (condition & GLib.IOCondition.HUP) {
                     GLib.source_remove(watch_id);
                     GLib.close(stdout);
-                    // Restituisci il testo tradotto pulito
-                    callback(outputBuffer.trim(), null);
                     return false;
                 }
                 return true;
             }
         );
     }
-	
-    _isValidModel(modelName) {
-        // Verifica che il nome del modello sia nel formato corretto (es: en-it-tiny)
-        return /^[a-z]{2}-[a-z]{2}-[a-z]+$/.test(modelName);
+
+    isAvailable() {
+        return GLib.find_program_in_path("translateLocally") !== null;
     }
 };
 

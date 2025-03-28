@@ -1,5 +1,5 @@
 (function() {
-    // Teach typelib location path to gi.
+    // Imposta il percorso di ricerca per il typelib.
     const GIRepository = imports.gi.GIRepository;
     ["mutter", "gnome-shell", "gnome-bluetooth", "gnome-games"].forEach(
         function(path) {
@@ -34,254 +34,139 @@ const TranslatorsManager = Me.imports.translators_manager;
 const LanguagesStats = Me.imports.languages_stats;
 const PrefsKeys = Me.imports.prefs_keys;
 
-function init() {
-    Me.imports.gettext.initTranslations();
-}
+let textTranslator;
 
-ExtensionUtils.get_text_translator_extension = function() {
-    return Me;
-};
+const TextTranslatorIndicator = class TextTranslatorIndicator extends PanelMenu.Button {
+    constructor() {
+        super(0.0, _("Text Translator"));
 
-function launch_extension_prefs() {
-    ExtensionUtils.openPrefs();
-}
+        this.icon = new St.Icon({
+            icon_name: 'accessories-dictionary-symbolic',
+            style_class: 'system-status-icon'
+        });
+        this.add_child(this.icon);
 
-const TIMEOUT_IDS = {
-    instant_translation: 0
-};
+        // Menu per la selezione del traduttore
+        this._translatorSelector = new PopupMenu.PopupSubMenuMenuItem(_("Select Translator"));
+        this.menu.addMenuItem(this._translatorSelector);
 
-const TRIGGERS = {
-    translate: true
-};
+        // Menu per la selezione della lingua sorgente
+        this._sourceLangSelector = new PopupMenu.PopupSubMenuMenuItem(_("Source Language"));
+        this.menu.addMenuItem(this._sourceLangSelector);
 
-const CONNECTION_IDS = {
-    show_icon: 0,
-    enable_shortcuts: 0
-};
+        // Menu per la selezione della lingua di destinazione
+        this._targetLangSelector = new PopupMenu.PopupSubMenuMenuItem(_("Target Language"));
+        this.menu.addMenuItem(this._targetLangSelector);
 
-const INSTANT_TRANSLATION_DELAY = 1000; // ms
-const TranslatorPanelButton = GObject.registerClass(
-    class Button extends PanelMenu.Button {
-        _init(translator) {
-            super._init(0.0, "text-translator");
-            this.reactive = false;
+        // Separatore
+        this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
 
-            this._translator = translator;
-            this._icon = new St.Icon({
-                icon_name: "insert-text-symbolic",
-                style_class: "system-status-icon",
-                reactive: true,
-                track_hover: true
-            });
-            this._icon.connect("button-press-event", (o, e) =>
-                this._on_button_press(o, e)
-            );
+        // Opzioni
+        let settingsItem = new PopupMenu.PopupMenuItem(_("Settings"));
+        settingsItem.connect('activate', () => {
+            ExtensionUtils.openPrefs();
+        });
+        this.menu.addMenuItem(settingsItem);
 
-            this._add_menu_items();
-            this.add_actor(this._icon);
+        this._initTranslators();
+        this._updateTranslatorsList();
+        this._loadLanguages();
+    }
+
+    _initTranslators() {
+        this._translatorManager = new TranslatorsManager.TranslatorsManager();
+        
+        // Carica l'ultimo traduttore usato o il predefinito
+        let lastUsed = this._translatorManager.last_used;
+        if (lastUsed) {
+            this._translatorManager.current = lastUsed;
         }
+    }
 
-        _add_menu_items() {
-            let menu_item;
+    _updateTranslatorsList() {
+        // Rimuovi i vecchi elementi
+        this._translatorSelector.menu.removeAll();
 
-            this._item_open = new PopupMenu.PopupMenuItem("Open");
-            this._item_open.connect("activate", () => {
-                this._translator.open();
+        // Aggiungi i traduttori disponibili
+        for (let translator of this._translatorManager.available_translators) {
+            let item = new PopupMenu.PopupMenuItem(translator.name);
+            item.connect('activate', () => {
+                this._translatorManager.current = translator;
+                this._loadLanguages(); // Ricarica le lingue supportate
             });
-            this.menu.addMenuItem(this._item_open);
+            this._translatorSelector.menu.addMenuItem(item);
 
-            this._menu_open_clipboard = new PopupMenu.PopupMenuItem(
-                "Open with clipboard"
-            );
-            this._menu_open_clipboard.label.clutter_text.set_use_markup(true);
-            this._menu_open_clipboard.connect("activate", () => {
-                this._translator._translate_from_clipboard(
-                    St.ClipboardType.CLIPBOARD
-                );
-            });
-            this.menu.addMenuItem(this._menu_open_clipboard);
-
-            this._menu_open_selection = new PopupMenu.PopupMenuItem(
-                "Open with selection"
-            );
-            this._menu_open_selection.label.clutter_text.set_use_markup(true);
-            this._menu_open_selection.connect("activate", () => {
-                this._translator._translate_from_clipboard(
-                    St.ClipboardType.PRIMARY
-                );
-            });
-            this.menu.addMenuItem(this._menu_open_selection);
-
-            this._separator = new PopupMenu.PopupSeparatorMenuItem();
-            this.menu.addMenuItem(this._separator);
-
-            this._menu_open_prefs = new PopupMenu.PopupMenuItem("Preferences");
-            this._menu_open_prefs.connect("activate", () => {
-                launch_extension_prefs();
-            });
-            this.menu.addMenuItem(this._menu_open_prefs);
-        }
-
-        _on_button_press(o, e) {
-            let button = e.get_button();
-
-            switch (button) {
-                case Clutter.BUTTON_SECONDARY:
-                    this.toggle_menu();
-                    break;
-                case Clutter.BUTTON_MIDDLE:
-                    this._translator._translate_from_clipboard(
-                        St.ClipboardType.PRIMARY
-                    );
-                    break;
-                default:
-                    this._translator.open();
-                    break;
+            // Evidenzia il traduttore corrente
+            if (translator === this._translatorManager.current) {
+                item.setOrnament(PopupMenu.Ornament.DOT);
             }
         }
 
-        set_focus(focus) {
-            if (focus) {
-                this.get_first_child().add_style_pseudo_class("active");
-            } else {
-                this.get_first_child().remove_style_pseudo_class("active");
-            }
+        // Aggiorna il testo del menu
+        this._translatorSelector.label.text = _("Translator: %s").format(
+            this._translatorManager.current.name
+        );
+    }
+
+    _loadLanguages() {
+        // Rimuovi le vecchie voci
+        this._sourceLangSelector.menu.removeAll();
+        this._targetLangSelector.menu.removeAll();
+
+        let current = this._translatorManager.current;
+        if (!current) return;
+
+        // Aggiungi "Auto" solo per la lingua sorgente
+        let autoItem = new PopupMenu.PopupMenuItem(_("Auto-detect"));
+        autoItem.connect('activate', () => {
+            Utils.SETTINGS.set_string(PrefsKeys.SOURCE_LANG_KEY, 'auto');
+            this._sourceLangSelector.label.text = _("Source: Auto-detect");
+        });
+        this._sourceLangSelector.menu.addMenuItem(autoItem);
+
+        // Carica le lingue supportate
+        for (let lang of current.supported_languages) {
+            // Lingua sorgente
+            let sourceItem = new PopupMenu.PopupMenuItem(_(lang.name));
+            sourceItem.connect('activate', () => {
+                Utils.SETTINGS.set_string(PrefsKeys.SOURCE_LANG_KEY, lang.code);
+                this._sourceLangSelector.label.text = _("Source: %s").format(_(lang.name));
+            });
+            this._sourceLangSelector.menu.addMenuItem(sourceItem);
+
+            // Lingua destinazione
+            let targetItem = new PopupMenu.PopupMenuItem(_(lang.name));
+            targetItem.connect('activate', () => {
+                Utils.SETTINGS.set_string(PrefsKeys.TARGET_LANG_KEY, lang.code);
+                this._targetLangSelector.label.text = _("Target: %s").format(_(lang.name));
+            });
+            this._targetLangSelector.menu.addMenuItem(targetItem);
         }
 
-        toggle_menu() {
-            if (!this.menu.isOpen) {
-                let clipboard = St.Clipboard.get_default();
+        // Imposta le etichette correnti
+        let currentSource = Utils.SETTINGS.get_string(PrefsKeys.SOURCE_LANG_KEY);
+        let currentTarget = Utils.SETTINGS.get_string(PrefsKeys.TARGET_LANG_KEY);
 
-                clipboard.get_text(
-                    St.ClipboardType.CLIPBOARD,
-                    (clipboard, text) => {
-                        let text_length = 0;
+        this._sourceLangSelector.label.text = currentSource === 'auto' 
+            ? _("Source: Auto-detect")
+            : _("Source: %s").format(_(current.getLanguageName(currentSource)));
 
-                        if (!Utils.is_blank(text)) {
-                            text_length = text.trim().length;
-                        }
-
-                        if (text_length < 1) {
-                            this._menu_open_clipboard.setSensitive(false);
-                            this._menu_open_clipboard.label.clutter_text.set_markup(
-                                'Translate from clipboard(<span size="xx-small" color="grey">' +
-                                    "<i>empty</i></span>)"
-                            );
-                        } else {
-                            this._menu_open_clipboard.setSensitive(true);
-                            this._menu_open_clipboard.label.clutter_text.set_markup(
-                                'Translate from clipboard(<span size="xx-small" color="grey">' +
-                                    "<i>%s chars</i></span>)".format(
-                                        text_length
-                                    )
-                            );
-                        }
-
-                        clipboard.get_text(
-                            St.ClipboardType.PRIMARY,
-                            (clipboard, selection_text) => {
-                                let selection_length = 0;
-
-                                if (!Utils.is_blank(selection_text)) {
-                                    selection_length = selection_text.trim()
-                                        .length;
-                                }
-
-                                if (selection_length < 1) {
-                                    this._menu_open_selection.setSensitive(
-                                        false
-                                    );
-                                    this._menu_open_selection.label.clutter_text.set_markup(
-                                        'Open with selection(<span size="xx-small" color="grey">' +
-                                            "<i>empty</i></span>)"
-                                    );
-                                } else {
-                                    this._menu_open_selection.setSensitive(
-                                        true
-                                    );
-                                    this._menu_open_selection.label.clutter_text.set_markup(
-                                        'Open with selection(<span size="xx-small" color="grey">' +
-                                            "<i>%s chars</i></span>)".format(
-                                                selection_length
-                                            )
-                                    );
-                                }
-                            }
-                        );
-                    }
-                );
-            }
-
-            this.menu.toggle();
-        }
-    }
-);
-
-const TranslatorsPopup = class TranslatorsPopup extends PopupMenu.PopupMenu {
-    constructor(button, dialog) {
-        super(button.actor, 0, St.Side.TOP);
-        this._button = button;
-        this._dialog = dialog;
-
-        this.setSourceAlignment(0.05);
-
-        this._label_menu_item = new St.Label({
-            text: "Press <Esc> to close",
-            style_class: "translator-translators-popup-escape-label"
-        });
-
-        this.actor.hide();
-        Main.uiGroup.add_actor(this.actor);
-
-        this._dialog.source.actor.connect("button-press-event", () => {
-            if (this.isOpen) this.close(true);
-        });
-        this._dialog.target.actor.connect("button-press-event", () => {
-            if (this.isOpen) this.close(true);
-        });
-    }
-
-    add_item(name, action) {
-        let item = new PopupMenu.PopupMenuItem(name);
-        item.connect("activate", () => {
-            action();
-            this.close();
-        });
-        this.addMenuItem(item);
-    }
-
-    open() {
-        this._button.set_sensitive(false);
-        this._button.actor.add_style_pseudo_class("active");
-        this.box.add(this._label_menu_item);
-        super.open(true);
-        this.firstMenuItem.actor.grab_key_focus();
-    }
-
-    close() {
-        super.close(true);
-        this._button.set_sensitive(true);
-        this._button.actor.remove_style_pseudo_class("active");
-        this._dialog.source.grab_key_focus();
-        this.destroy();
+        this._targetLangSelector.label.text = _("Target: %s").format(
+            _(current.getLanguageName(currentTarget))
+        );
     }
 
     destroy() {
-        this.removeAll();
-        this.actor.destroy();
-
-        this.emit("destroy");
-
-        Main.sessionMode.disconnect(this._sessionUpdatedId);
-        this._sessionUpdatedId = 0;
+        this._translatorManager.destroy();
+        super.destroy();
     }
 };
 
-const TranslatorExtension = class TranslatorExtension {
+class TranslatorExtension {
     constructor() {
         log("Translator Extension");
-        this._current_source_lang = ''
-        this._current_target_lang = ''
+        this._current_source_lang = '';
+        this._current_target_lang = '';
         this._dialog = new TranslatorDialog.TranslatorDialog(this);
         this._dialog.source.clutter_text.connect("text-changed", () => {
             let enable_instant_translation = Utils.SETTINGS.get_boolean(
@@ -303,9 +188,7 @@ const TranslatorExtension = class TranslatorExtension {
         this._dialog.dialog_layout.connect("key-press-event", (o, e) =>
             this._on_key_press_event(o, e)
         );
-        this._translators_manager = new TranslatorsManager.TranslatorsManager(
-            this
-        );
+        this._translators_manager = new TranslatorsManager.TranslatorsManager(this);
 
         this._dialog.source.max_length = this._translators_manager.current.limit;
         this._dialog.source.connect("activate", () => this._translate());
@@ -1122,17 +1005,26 @@ const TranslatorExtension = class TranslatorExtension {
 let translator = null;
 
 function init() {
-    // nothing
+    Me.imports.gettext.initTranslations();
 }
 
 function enable() {
+    textTranslator = new TextTranslatorIndicator();
+    Main.panel.addToStatusArea('text-translator', textTranslator);
+
     translator = new TranslatorExtension();
     translator.enable();
 }
 
 function disable() {
+    if (textTranslator) {
+        textTranslator.destroy();
+        textTranslator = null;
+    }
+
     if (translator !== null) {
         translator.disable();
         translator = null;
     }
 }
+

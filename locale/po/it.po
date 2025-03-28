@@ -2,8 +2,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: Text Translator GNOME Extension\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-03-28 20:09:26+0000\n"
-"PO-Revision-Date: 2025-03-28 20:09:26+0000\n"
+"POT-Creation-Date: 2025-03-28 20:26:29+0000\n"
+"PO-Revision-Date: 2025-03-28 20:26:29+0000\n"
 "Last-Translator: MoonDragon-MD <moondragon.md@example.com>\n"
 "Language-Team: Italian\n"
 "Language: it\n"
@@ -44,17 +44,73 @@ msgstr "Dimensione carattere:"
 msgid "Deepl: API key not configured or invalid"
 msgstr "Deepl: Chiave API non configurata o non valida"
 
+#: deepl_translation_provider.js:33
+msgid "Deepl: New API key is invalid"
+msgstr "Deepl: La nuova chiave API non è valida"
+
 #: deepl_translation_provider.js:89
 msgid "Deepl: Error in translation request"
 msgstr "Deepl: Errore nella richiesta di traduzione"
 
-#: locally_translation_provider.js:15
-msgid "translateLocally is not installed"
-msgstr "translateLocally non è installato"
+#: deepl_translation_provider.js:65
+msgid "Empty text to translate"
+msgstr "Il testo da tradurre è vuoto"
 
-#: locally_translation_provider.js:63
-msgid "No model available for translating from %s to %s"
+#: deepl_translation_provider.js:74
+msgid "Target language '%s' not supported by Deepl"
+msgstr "Lingua di destinazione '%s' non supportata da Deepl"
+
+#: deepl_translation_provider.js:78
+msgid "Source language '%s' not supported by Deepl"
+msgstr "Lingua sorgente '%s' non supportata da Deepl"
+
+#: deepl_translation_provider.js:113
+msgid "HTTP Error %d"
+msgstr "Errore HTTP %d"
+
+#: deepl_translation_provider.js:115
+msgid "Deepl Error: %d - %s"
+msgstr "Errore Deepl: %d - %s"
+
+#: deepl_translation_provider.js:128
+msgid "Invalid response from Deepl"
+msgstr "Risposta non valida da Deepl"
+
+#: deepl_translation_provider.js:131
+msgid "Error parsing response: %s"
+msgstr "Errore nell'analisi della risposta: %s"
+
+#: deepl_translation_provider.js:135
+msgid "Error sending request: %s"
+msgstr "Errore nell'invio della richiesta: %s"
+
+#: locally_translation_provider.js:15
+msgid "translateLocally is not installed or not in PATH"
+msgstr "translateLocally non è installato o non è nel PATH"
+
+#: locally_translation_provider.js:23
+msgid "Could not get translateLocally models: %s"
+msgstr "Impossibile ottenere i modelli di translateLocally: %s"
+
+#: locally_translation_provider.js:38
+msgid "Available models: %s"
+msgstr "Modelli disponibili: %s"
+
+#: locally_translation_provider.js:45
+msgid "Empty text to translate"
+msgstr "Il testo da tradurre è vuoto"
+
+#: locally_translation_provider.js:82
+msgid "No model available to translate from %s to %s"
 msgstr "Nessun modello disponibile per tradurre da %s a %s"
+
+#: locally_translation_provider.js:91
+msgid "Error executing translateLocally"
+msgstr "Errore nell'esecuzione di translateLocally"
+
+#: locally_translation_provider.js:113
+msgid "Error reading output: %s"
+msgstr "Errore nella lettura dell'output: %s"
 
 #: translators_manager.js:43
 msgid "Loaded translator: %s"
@@ -63,3 +119,43 @@ msgstr "Caricato traduttore: %s"
 #: translators_manager.js:146
 msgid "Translator changed to %s (previous one was not available)"
 msgstr "Traduttore cambiato in %s (il precedente non era disponibile)"
+
+#: extension.js:8
+msgid "Text Translator"
+msgstr "Traduttore di Testo"
+
+#: extension.js:19
+msgid "Select Translator"
+msgstr "Seleziona Traduttore"
+
+#: extension.js:23
+msgid "Source Language"
+msgstr "Lingua Sorgente"
+
+#: extension.js:27
+msgid "Target Language"
+msgstr "Lingua di Destinazione"
+
+#: extension.js:34
+msgid "Settings"
+msgstr "Impostazioni"
+
+#: extension.js:89
+msgid "Translator: %s"
+msgstr "Traduttore: %s"
+
+#: extension.js:100
+msgid "Auto-detect"
+msgstr "Rilevamento Automatico"
+
+#: extension.js:103
+msgid "Source: Auto-detect"
+msgstr "Sorgente: Rilevamento Automatico"
+
+#: extension.js:117
+msgid "Source: %s"
+msgstr "Sorgente: %s"
+
+#: extension.js:125
+msgid "Target: %s"
+msgstr "Destinazione: %s"
