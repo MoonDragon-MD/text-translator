@@ -36,9 +36,10 @@ const PrefsKeys = Me.imports.prefs_keys;
 
 let textTranslator;
 
-const TextTranslatorIndicator = class TextTranslatorIndicator extends PanelMenu.Button {
-    constructor() {
-        super(0.0, _("Text Translator"));
+const TextTranslatorIndicator = GObject.registerClass(
+class TextTranslatorIndicator extends PanelMenu.Button {
+    _init() {
+        super._init(0.0, _("Text Translator"));
 
         this.icon = new St.Icon({
             icon_name: 'accessories-dictionary-symbolic',

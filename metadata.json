@@ -1,9 +1,12 @@
 {
+    "uuid": "text_translator@moondragon.md",
     "name": "Text Translator",
-    "description": "Translate text using various translation services",
-    "uuid": "text-translator@moondragon.md",
-    "shell-version": ["3.36"],
-    "url": "https://github.com/MoonDragon-MD/text-translator",
-    "version": 1,
-    "gettext-domain": "text-translator"
+    "description": "Translate text using various translation providers",
+    "settings-schema": "org.gnome.shell.extensions.text-translator",
+    "shell-version": [
+        "3.36",
+        "3.38"
+    ],
+    "version": 2,
+    "url": "https://github.com/MoonDragon-MD/text-translator"
 }
