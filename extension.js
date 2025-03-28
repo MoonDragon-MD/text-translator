@@ -163,7 +163,7 @@ class TextTranslatorIndicator extends PanelMenu.Button {
     }
 };
 
-class TranslatorExtension {
+const TranslatorExtension = class TranslatorExtension { 
     constructor() {
         log("Translator Extension");
         this._current_source_lang = '';

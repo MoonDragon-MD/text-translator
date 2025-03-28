@@ -3,10 +3,7 @@
     "name": "Text Translator",
     "description": "Translate text using various translation providers",
     "settings-schema": "org.gnome.shell.extensions.text-translator",
-    "shell-version": [
-        "3.36",
-        "3.38"
-    ],
+    "shell-version": ["3.36"],
     "version": 2,
     "url": "https://github.com/MoonDragon-MD/text-translator"
 }

@@ -23,6 +23,53 @@ const TranslatorProvidersWidget = GObject.registerClass(
                 row_spacing: 10,
                 column_spacing: 10
             });
+            
+            // Spostiamo POSITIONS all'interno del costruttore
+            this.POSITIONS = {
+                translators: {
+                    col: 0,
+                    row: 0,
+                    colspan: 2,
+                    rowspan: 1
+                },
+                default_source_label: {
+                    col: 0,
+                    row: 1,
+                    colspan: 1,
+                    rowspan: 1
+                },
+                default_source: {
+                    col: 1,
+                    row: 1,
+                    colspan: 1,
+                    rowspan: 1
+                },
+                default_target_label: {
+                    col: 0,
+                    row: 2,
+                    colspan: 1,
+                    rowspan: 1
+                },
+                default_target: {
+                    col: 1,
+                    row: 2,
+                    colspan: 1,
+                    rowspan: 1
+                },
+                last_used_label: {
+                    col: 0,
+                    row: 3,
+                    colspan: 1,
+                    rowspan: 1
+                },
+                last_used: {
+                    col: 1,
+                    row: 3,
+                    colspan: 1,
+                    rowspan: 1
+                }
+            };
+
             this._rownum = 0;
             this._translators_manager = new TranslatorsManager.TranslatorsManager();
             
