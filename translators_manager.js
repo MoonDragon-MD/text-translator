@@ -31,8 +31,9 @@ var TranslatorsManager = class TranslatorsManager {
             let file_name = files_list[i];
             let module_name = file_name.slice(0, -3);
 
-            if (!Utils.ends_with(file_name, "_translation_provider.js"))
+            if (!Utils.ends_with(file_name, "_translation_provider.js")) {
                 continue;
+            }
 
             let translator = new translators_imports[module_name].Translator(
                 this._extension_object
@@ -45,21 +46,15 @@ var TranslatorsManager = class TranslatorsManager {
         return translators;
     }
 
-    get_languages() {
-        if (this.name === "Locally") {
-            return {
-                "en": "English",
-                "it": "Italian"
-            };
-        }
-		
     get_by_name(name) {
-        if (Utils.is_blank(name)) return false;
+        if (Utils.is_blank(name)) {
+            return false;
+        }
 
         for (let i = 0; i < this._translators.length; i++) {
             let translator = this._translators[i];
 
-            if (translator.name.toLowerCase() == name.toLowerCase()) {
+            if (translator.name.toLowerCase() === name.toLowerCase()) {
                 return translator;
             }
         }
