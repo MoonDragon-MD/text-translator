@@ -13,6 +13,7 @@ xgettext --from-code=UTF-8 \
          --output="${PO_DIR}/${DOMAIN}.pot" \
          --package-name="Text Translator GNOME Extension" \
          --copyright-holder="MoonDragon-MD" \
+         --msgid-bugs-address="moondragon.md@example.com" \
          --add-comments=TRANSLATORS: \
          --keyword=_ \
          --keyword=N_ \

@@ -7,8 +7,8 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Text Translator GNOME Extension\n"
-"Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-03-28 23:01+0100\n"
+"Report-Msgid-Bugs-To: moondragon.md@example.com\n"
+"POT-Creation-Date: 2025-03-28 23:20+0100\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -75,7 +75,9 @@ msgid ""
 msgstr ""
 
 #: translation_providers/deepl_translation_provider.js:74
+#: translation_providers/google_translation_provider.js:44
 #: translation_providers/locally_translation_provider.js:45
+#: translation_providers/yandex_translation_provider.js:71
 msgid "Empty text to translate"
 msgstr ""
 
@@ -90,6 +92,8 @@ msgid "Source language '%s' not supported by Deepl"
 msgstr ""
 
 #: translation_providers/deepl_translation_provider.js:115
+#: translation_providers/google_translation_provider.js:79
+#: translation_providers/yandex_translation_provider.js:108
 #, javascript-format
 msgid "HTTP Error %d"
 msgstr ""
@@ -104,13 +108,31 @@ msgid "Invalid response from Deepl"
 msgstr ""
 
 #: translation_providers/deepl_translation_provider.js:132
+#: translation_providers/google_translation_provider.js:98
+#: translation_providers/yandex_translation_provider.js:122
 #, javascript-format
 msgid "Error parsing response: %s"
 msgstr ""
 
 #: translation_providers/deepl_translation_provider.js:136
+#: translation_providers/google_translation_provider.js:102
+#: translation_providers/yandex_translation_provider.js:126
 #, javascript-format
 msgid "Error sending request: %s"
+msgstr ""
+
+#: translation_providers/google_translation_provider.js:53
+#, javascript-format
+msgid "Target language '%s' not supported by Google"
+msgstr ""
+
+#: translation_providers/google_translation_provider.js:58
+#, javascript-format
+msgid "Source language '%s' not supported by Google"
+msgstr ""
+
+#: translation_providers/google_translation_provider.js:95
+msgid "Invalid response from Google"
 msgstr ""
 
 #: translation_providers/locally_translation_provider.js:16
@@ -139,4 +161,37 @@ msgstr ""
 #: translation_providers/locally_translation_provider.js:110
 #, javascript-format
 msgid "Error reading output: %s"
+msgstr ""
+
+#: translation_providers/yandex_translation_provider.js:23
+msgid "Yandex: API key not configured or invalid"
+msgstr ""
+
+#: translation_providers/yandex_translation_provider.js:33
+msgid "Yandex: New API key is invalid"
+msgstr ""
+
+#: translation_providers/yandex_translation_provider.js:66
+msgid ""
+"Yandex: API key not configured or invalid. Configure it in extension "
+"preferences."
+msgstr ""
+
+#: translation_providers/yandex_translation_provider.js:80
+#, javascript-format
+msgid "Target language '%s' not supported by Yandex"
+msgstr ""
+
+#: translation_providers/yandex_translation_provider.js:85
+#, javascript-format
+msgid "Source language '%s' not supported by Yandex"
+msgstr ""
+
+#: translation_providers/yandex_translation_provider.js:106
+#, javascript-format
+msgid "Yandex Error: %s"
+msgstr ""
+
+#: translation_providers/yandex_translation_provider.js:119
+msgid "Invalid response from Yandex"
 msgstr ""
