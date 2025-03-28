@@ -72,7 +72,7 @@ const TranslatorPanelButton = GObject.registerClass(
             );
 
             this._add_menu_items();
-            this.actor.add_actor(this._icon);
+            this.add_actor(this._icon);
         }
 
         _add_menu_items() {
@@ -462,7 +462,7 @@ const TranslatorExtension = class TranslatorExtension {
     _set_current_translator(name) {
         this._translators_button.label = "<i>%s</i>".format(name);
 
-        this._translators_manager.current = name;
+        this._translators_manager.current = this._translators_manager.get_by_name(name); // Modificato qui
         this._dialog.source.max_length = this._translators_manager.current.limit;
         this._set_current_languages();
         this._show_most_used();
@@ -895,35 +895,43 @@ const TranslatorExtension = class TranslatorExtension {
             true
         );
 
-        this._translators_manager.current.translate(
-            this._current_source_lang,
-            this._current_target_lang,
-            this._dialog.source.text,
-            result => {
-                this._dialog.statusbar.remove_message(message_id);
+        if(this._translators_manager.current) {
+            this._translators_manager.current.translate(
+                this._current_source_lang,
+                this._current_target_lang,
+                this._dialog.source.text,
+                result => {
+                    this._dialog.statusbar.remove_message(message_id);
 
-                if (result.error) {
-                    this._dialog.statusbar.add_message(
-                        result.message,
-                        4000,
-                        StatusBar.MESSAGE_TYPES.error
-                    );
-                } else {
-                    this._dialog.target.markup = result;
-
-                    if (
-                        Utils.SETTINGS.get_boolean(
-                            PrefsKeys.ENABLE_AUTO_SPEAK_KEY
-                        )
-                    ) {
-                        this._dialog.google_tts.speak(
-                            this._dialog.target.text,
-                            this._current_target_lang
+                    if (result.error) {
+                        this._dialog.statusbar.add_message(
+                            result.message,
+                            4000,
+                            StatusBar.MESSAGE_TYPES.error
                         );
+                    } else {
+                        this._dialog.target.markup = result;
+
+                        if (
+                            Utils.SETTINGS.get_boolean(
+                                PrefsKeys.ENABLE_AUTO_SPEAK_KEY
+                            )
+                        ) {
+                            this._dialog.google_tts.speak(
+                                this._dialog.target.text,
+                                this._current_target_lang
+                            );
+                        }
                     }
                 }
-            }
-        );
+            );
+        } else {
+            this._dialog.statusbar.add_message(
+                "Translator not initialized.",
+                4000,
+                StatusBar.MESSAGE_TYPES.error
+            );
+        }
     }
 
     _translate_from_clipboard(clipboard_type) {
