@@ -20,34 +20,42 @@ const TranslatorProvidersWidget = GObject.registerClass(
     },
     class TranslatorProvidersWidget extends Gtk.Grid {
         _init() {
-            super._init();
-            this.set_orientation(Gtk.Orientation.VERTICAL);
-            this.margin = this.row_spacing = this.column_spacing = 10;
-
+            super._init({
+                orientation: Gtk.Orientation.VERTICAL,
+                margin: 10,
+                row_spacing: 10,
+                column_spacing: 10
+            });
+            this._rownum = 0; // Inizializzazione esplicita
             this._translators_manager = new TranslatorsManager.TranslatorsManager();
-            let names = this._translators_manager.translators_names;
-
             this.POSITIONS = {
                 translators: { col: 0, row: 0, colspan: 2, rowspan: 1 },
-                default_source_label: {
-                    col: 0,
-                    row: 1,
-                    colspan: 1,
-                    rowspan: 1
-                },
+                default_source_label: { col: 0, row: 1, colspan: 1, rowspan: 1 },
                 default_source: { col: 1, row: 1, colspan: 1, rowspan: 1 },
-                default_target_label: {
-                    col: 0,
-                    row: 2,
-                    colspan: 1,
-                    rowspan: 1
-                },
+                default_target_label: { col: 0, row: 2, colspan: 1, rowspan: 1 },
                 default_target: { col: 1, row: 2, colspan: 1, rowspan: 1 },
                 last_used_label: { col: 0, row: 3, colspan: 1, rowspan: 1 },
                 last_used: { col: 1, row: 3, colspan: 1, rowspan: 1 }
             };
 
-            // translators
+            // Aggiungi il campo per la chiave API di Deepl
+            let deeplApiKeyLabel = new Gtk.Label({
+                label: "Deepl API Key:",
+                hexpand: true,
+                halign: Gtk.Align.START
+            });
+            let deeplApiKeyEntry = new Gtk.Entry({ hexpand: false });
+            deeplApiKeyEntry.set_text(Utils.SETTINGS.get_string("deepl-api-key"));
+            deeplApiKeyEntry.connect("changed", entry => {
+                Utils.SETTINGS.set_string("deepl-api-key", entry.get_text());
+            });
+
+            this.attach(deeplApiKeyLabel, 0, this._rownum, 1, 1);
+            this.attach(deeplApiKeyEntry, 1, this._rownum, 1, 1);
+            this._rownum++;
+
+            // Inizializzazione dei widget rimanenti
+            let names = this._translators_manager.translators_names;
             this._translators_combo = this._get_combo(names, 0);
             this._translators_combo.set_active_id(names[0]);
             this._translators_combo.connect("changed", combo => {
@@ -55,7 +63,6 @@ const TranslatorProvidersWidget = GObject.registerClass(
                 this._show_settings(name);
             });
             this.attach(
-                // col, row, colspan, rowspan
                 this._translators_combo,
                 this.POSITIONS.translators.col,
                 this.POSITIONS.translators.row,
@@ -63,7 +70,6 @@ const TranslatorProvidersWidget = GObject.registerClass(
                 this.POSITIONS.translators.rowspan
             );
 
-            // default source
             this._source_languages_combo = this._get_combo([]);
             let label = new Gtk.Label({
                 label: "Default source language:",
@@ -78,7 +84,6 @@ const TranslatorProvidersWidget = GObject.registerClass(
                 this.POSITIONS.default_source_label.rowspan
             );
 
-            // default target
             this._target_languages_combo = this._get_combo([]);
             label = new Gtk.Label({
                 label: "Default target language:",
@@ -93,7 +98,6 @@ const TranslatorProvidersWidget = GObject.registerClass(
                 this.POSITIONS.default_target_label.rowspan
             );
 
-            // remember last lang
             label = new Gtk.Label({
                 label: "Remember the last used languages:",
                 hexpand: true,
@@ -109,7 +113,7 @@ const TranslatorProvidersWidget = GObject.registerClass(
             this._last_used = new Gtk.Switch({
                 active: false,
                 hexpand: false,
-                halign: Gtk.Align.END,
+                halign: Gtk.Align.END
             });
             this._last_used.connect("notify::active", s => {
                 let active = s.get_active();
@@ -130,11 +134,9 @@ const TranslatorProvidersWidget = GObject.registerClass(
 
         _get_combo(items) {
             let combo_box = new Gtk.ComboBoxText();
-
             for (let i = 0; i < items.length; i++) {
                 combo_box.insert(-1, items[i], items[i]);
             }
-
             return combo_box;
         }
 
@@ -220,22 +222,44 @@ const TranslatorProvidersWidget = GObject.registerClass(
 
         _show_settings(name) {
             let translator = this._translators_manager.get_by_name(name);
+            let source_langs, target_langs;
 
-            let source_langs = translator.get_languages();
-            this._load_default_source(
-                source_langs,
-                translator.prefs.default_source
-            );
+            if (name === "Locally") {
+                // Per translateLocally, ottieni le lingue dai modelli
+                let models = this._getLocallyModels();
+                source_langs = this._getSourceLanguagesFromModels(models);
+                target_langs = this._getTargetLanguagesFromModels(models, translator.prefs.default_source);
+            } else {
+                // Per altri provider (es. Deepl, Google)
+                source_langs = translator.get_languages();
+                target_langs = translator.get_pairs(translator.prefs.default_source);
+            }
 
-            let target_langs = translator.get_pairs(
-                translator.prefs.default_source
-            );
-            this._load_default_target(
-                target_langs,
-                translator.prefs.default_target
-            );
-
+            this._load_default_source(source_langs, translator.prefs.default_source);
+            this._load_default_target(target_langs, translator.prefs.default_target);
             this._last_used.set_active(translator.prefs.remember_last_lang);
+        }
+
+        _getLocallyModels() {
+            let translator = this._translators_manager.get_by_name("Locally");
+            return translator.models; // Usa i modelli caricati dal provider
+        }
+
+        _getSourceLanguagesFromModels(models) {
+            let sourceLangs = {};
+            for (let src in models) {
+                sourceLangs[src] = src; // Potresti mappare a nomi completi con una lista predefinita
+            }
+            return sourceLangs;
+        }
+
+        _getTargetLanguagesFromModels(models, sourceLang) {
+            if (!models[sourceLang]) return {};
+            let targetLangs = {};
+            for (let tgt in models[sourceLang]) {
+                targetLangs[tgt] = tgt;
+            }
+            return targetLangs;
         }
     }
 );
@@ -332,8 +356,8 @@ const TranslatorKeybindingsWidget = GObject.registerClass(
             );
             this._tree_view.append_column(keybinding_column);
 
-            scrolled_window.set_child(this._tree_view);
-            this.append(scrolled_window);
+            scrolled_window.add(this._tree_view);
+            this.pack_start(scrolled_window, true, true, 0);
 
             this._refresh();
         }
@@ -342,10 +366,24 @@ const TranslatorKeybindingsWidget = GObject.registerClass(
             this._store.clear();
 
             for (let settings_key in this._keybindings) {
-                let [_, key, mods] = Gtk.accelerator_parse(
-                    Utils.SETTINGS.get_strv(settings_key)[0]
-                );
+                // Recupera l'acceleratore dalle impostazioni
+                let accelerator = Utils.SETTINGS.get_strv(settings_key)[0] || "";
+                
+                // Parsa l'acceleratore, con valori di default se il parsing fallisce
+                let [success, key, mods] = Gtk.accelerator_parse(accelerator);
+                if (!success || key === undefined || mods === undefined) {
+                    log("Impossibile parseare l'acceleratore per " + settings_key);
+                    key = 0;  // Valore di default per key
+                    mods = 0; // Valore di default per mods
+                }
 
+                // Converti esplicitamente i valori nei tipi attesi
+                let name = String(settings_key);                     // Stringa
+                let accel_name = String(this._keybindings[settings_key]); // Stringa
+                let mods_int = parseInt(mods);                       // Intero
+                let key_int = parseInt(key);                         // Intero
+
+                // Aggiungi la riga al Gtk.ListStore
                 let iter = this._store.append();
                 this._store.set(
                     iter,
@@ -355,7 +393,7 @@ const TranslatorKeybindingsWidget = GObject.registerClass(
                         this._columns.MODS,
                         this._columns.KEY
                     ],
-                    [settings_key, this._keybindings[settings_key], mods, key]
+                    [name, accel_name, mods_int, key_int]
                 );
             }
         }
@@ -376,18 +414,22 @@ const TranslatorPrefsGrid = GObject.registerClass(
         }
 
         add_entry(text, key) {
-            let item = new Gtk.Entry({
+            let label = new Gtk.Label({
+                label: text,
+                hexpand: true,
+                halign: Gtk.Align.START
+            });
+            let entry = new Gtk.Entry({
                 hexpand: false
             });
-            item.text = this._settings.get_string(key);
-            this._settings.bind(
-                key,
-                item,
-                "text",
-                Gio.SettingsBindFlags.DEFAULT
-            );
+            entry.set_text(Utils.SETTINGS.get_string(key));
+            entry.connect("changed", entry => {
+                Utils.SETTINGS.set_string(key, entry.get_text());
+            });
 
-            return this.add_row(text, item);
+            this.attach(label, 0, this._rownum, 1, 1);
+            this.attach(entry, 1, this._rownum, 1, 1);
+            this._rownum++;
         }
 
         add_shortcut(text, settings_key) {
@@ -408,11 +450,20 @@ const TranslatorPrefsGrid = GObject.registerClass(
         }
 
         add_boolean(text, key) {
+            // Controlla che text sia una stringa
+            if (typeof text !== 'string') {
+                log('Errore: text non è una stringa: ' + text);
+                return;
+            }
+
+            // Crea uno switch GTK
             let item = new Gtk.Switch({
                 active: this._settings.get_boolean(key),
                 hexpand: false,
                 halign: Gtk.Align.END,
             });
+
+            // Collega lo switch alle impostazioni
             this._settings.bind(
                 key,
                 item,
@@ -420,6 +471,7 @@ const TranslatorPrefsGrid = GObject.registerClass(
                 Gio.SettingsBindFlags.DEFAULT
             );
 
+            // Chiama add_row con il testo e lo switch
             return this.add_row(text, item);
         }
 
@@ -494,9 +546,15 @@ const TranslatorPrefsGrid = GObject.registerClass(
                 hexpand: true,
                 halign: Gtk.Align.START
             });
-            label.set_wrap(wrap || false);
+            log('Tipo di label: ' + label.constructor.name); // Dovrebbe stampare "Label"
 
-            this.attach(label, 0, this._rownum, 1, 1); // col, row, colspan, rowspan
+           // if (label && typeof label.set_wrap === 'function') {
+           //     label.set_wrap(wrap || false);
+           // } else {
+           //     log('Errore: label.set_wrap non è una funzione. Tipo di label: ' + typeof label);
+            }
+
+            this.attach(label, 0, this._rownum, 1, 1);
             this.attach(widget, 1, this._rownum, 1, 1);
             this._rownum++;
 
@@ -592,8 +650,8 @@ const TextTranslatorPrefsWidget = GObject.registerClass(
                 keybindings.name
             );
 
-            this.append(stack_switcher);
-            this.append(stack);
+            this.pack_start(stack_switcher, false, false, 0);
+            this.pack_start(stack, true, true, 0);
         }
 
         _get_main_page() {
@@ -662,7 +720,7 @@ const TextTranslatorPrefsWidget = GObject.registerClass(
         _get_providers_page() {
             let name = "Translators";
             let page = new TranslatorProvidersWidget();
-
+            //  page.add_entry("Deepl API Key:", "deepl-api-key");
             let result = {
                 name: name,
                 page: page

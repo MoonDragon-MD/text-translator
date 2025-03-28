@@ -25,14 +25,28 @@
         {
            "Google.Translate":{
               "default_source":"en",
-              "default_target":"ru",
+              "default_target":"it",
               "last_source":"",
               "last_target":"",
               "remember_last_lang": true
            },
            "Yandex.Translate":{
               "default_source":"en",
-              "default_target":"ru",
+              "default_target":"it",
+              "last_source":"",
+              "last_target":"",
+              "remember_last_lang": true
+           },
+           "Deepl.Translate":{
+              "default_source":"en",
+              "default_target":"it",
+              "last_source":"",
+              "last_target":"",
+              "remember_last_lang": true
+           },
+           "Locally.Translate":{
+              "default_source":"en",
+              "default_target":"it",
               "last_source":"",
               "last_target":"",
               "remember_last_lang": true
@@ -88,6 +102,12 @@
 
     <key type="b" name="enable-auto-speak">
         <default>false</default>
+    </key>
+	  
+    <key type="s" name="deepl-api-key">
+        <default>'12345'</default>
+        <summary>Deepl API Key</summary>
+        <description>Chiave API per utilizzare il servizio di traduzione Deepl.</description>
     </key>
 
   </schema>

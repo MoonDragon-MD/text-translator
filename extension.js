@@ -578,6 +578,21 @@ const TranslatorExtension = class TranslatorExtension {
         );
     }
 
+    _get_close_button() {
+        let button_params = {
+            button_style_class: "translator-dialog-menu-button",
+            statusbar: this._dialog.statusbar
+        };
+        let button = new ButtonsBar.ButtonsBarButton(
+            Utils.ICONS.close,  // Usa un'icona di chiusura definita in utils.js
+            "",
+            "Chiudi",
+            button_params,
+            () => this.close()
+        );
+        return button;
+    }
+	
     _get_source_lang_button() {
         let button_params = {
             button_style_class: "tranlator-top-bar-button-reactive",
@@ -712,36 +727,6 @@ const TranslatorExtension = class TranslatorExtension {
         return button;
     }
 
-    _get_instant_translation_button() {
-        let button_params = {
-            button_style_class: "translator-dialog-menu-toggle-button",
-            toggle_mode: true,
-            statusbar: this._dialog.statusbar
-        };
-
-        let button = new ButtonsBar.ButtonsBarButton(
-            Utils.ICONS.instant_translation,
-            "",
-            "Enable/Disable instant translation",
-            button_params,
-            () => {
-                let checked = button.get_checked();
-                button.set_checked(checked);
-
-                Utils.SETTINGS.set_boolean(
-                    PrefsKeys.INSTANT_TRANSLATION_KEY,
-                    checked
-                );
-            }
-        );
-        let checked = Utils.SETTINGS.get_boolean(
-            PrefsKeys.INSTANT_TRANSLATION_KEY
-        );
-        button.set_checked(checked);
-
-        return button;
-    }
-
     _get_help_button() {
         let button_params = {
             button_style_class: "translator-dialog-menu-button",
@@ -796,12 +781,45 @@ const TranslatorExtension = class TranslatorExtension {
         return button;
     }
 
+    _get_instant_translation_button() {
+        let button_params = {
+            button_style_class: "translator-dialog-menu-toggle-button",
+            toggle_mode: true,
+            statusbar: this._dialog.statusbar
+        };
+
+        let button = new ButtonsBar.ButtonsBarButton(
+            Utils.ICONS.instant_translation,
+            "",
+            "Enable/Disable instant translation",
+            button_params,
+            () => {
+                let checked = button.get_checked();
+                button.set_checked(checked);
+
+                Utils.SETTINGS.set_boolean(
+                    PrefsKeys.INSTANT_TRANSLATION_KEY,
+                    checked
+                );
+            }
+        );
+        let checked = Utils.SETTINGS.get_boolean(
+            PrefsKeys.INSTANT_TRANSLATION_KEY
+        );
+        button.set_checked(checked);
+
+        return button;
+    }
+
     _add_topbar_buttons() {
         this._source_lang_button = this._get_source_lang_button();
         this._dialog.topbar.add_button(this._source_lang_button);
 
         this._swap_languages_button = this._get_swap_langs_button();
         this._dialog.topbar.add_button(this._swap_languages_button);
+
+        this._translator_toggle_button = this._get_translator_toggle_button();
+        this._dialog.topbar.add_button(this._translator_toggle_button);
 
         this._target_lang_button = this._get_target_lang_button();
         this._dialog.topbar.add_button(this._target_lang_button);
@@ -825,7 +843,34 @@ const TranslatorExtension = class TranslatorExtension {
         this._dialog.topbar.add_button(this._translate_button);
     }
 
+    _get_translator_toggle_button() {
+        let button_params = {
+            button_style_class: "tranlator-top-bar-button-reactive",
+            statusbar: this._dialog.statusbar
+        };
+        let button = new ButtonsBar.ButtonsBarButton(
+            false,
+            this._translators_manager.current.name === "Locally" ? "Online" : "Locale",
+            "Passa tra traduttore locale e online",
+            button_params,
+            () => {
+                if (this._translators_manager.current.name === "Locally") {
+                    this._set_current_translator(this._translators_manager.default.name);
+                    button.label = "Locale";
+                } else {
+                    this._set_current_translator("Locally");
+                    button.label = "Online";
+                }
+            }
+        );
+        return button;
+    }
+	
     _add_dialog_menu_buttons() {
+
+        let close_button = this._get_close_button();
+        this._dialog.dialog_menu.add_button(close_button);
+		
         let instant_translation_button = this._get_instant_translation_button();
         this._dialog.dialog_menu.add_button(instant_translation_button);
 
@@ -834,9 +879,6 @@ const TranslatorExtension = class TranslatorExtension {
 
         let prefs_button = this._get_prefs_button();
         this._dialog.dialog_menu.add_button(prefs_button);
-
-        let close_button = this._get_close_button();
-        this._dialog.dialog_menu.add_button(close_button);
     }
 
     _translate() {

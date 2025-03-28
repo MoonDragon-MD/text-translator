@@ -39,6 +39,7 @@ var TranslatorsManager = class TranslatorsManager {
             );
             translator.file_name = file_name;
             translators.push(translator);
+            log('Caricato traduttore: ' + translator.name);
         }
 
         return translators;
@@ -91,7 +92,6 @@ var TranslatorsManager = class TranslatorsManager {
 
     get translators_names() {
         let result = [];
-
         for (let i = 0; i < this._translators.length; i++) {
             result.push(this._translators[i].name);
         }

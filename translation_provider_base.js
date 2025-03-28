@@ -98,26 +98,33 @@ var TranslationProviderPrefs = class TranslationProviderPrefs {
     }
 
     _load_prefs() {
-        let json_string = Utils.SETTINGS.get_string(
-            PrefsKeys.TRANSLATORS_PREFS_KEY
-        );
+        let json_string = Utils.SETTINGS.get_string(PrefsKeys.TRANSLATORS_PREFS_KEY);
         let prefs = {};
-        prefs[this._name] = {};
         try {
             prefs = JSON.parse(json_string);
-        } catch (e) {}
-
-        if (prefs[this._name] === undefined) {
-            throw new Error("Can't load prefs for %s".format(this._name));
-            return;
+        } catch (e) {
+            prefs = {};
         }
 
-        prefs = prefs[this._name];
-        this._default_source = prefs.default_source || "en";
-        this._default_target = prefs.default_target || "ru";
-        this._last_source = prefs.last_source || "";
-        this._last_target = prefs.last_target || "";
-        this._remember_last_lang = prefs.remember_last_lang || false;
+        // Se le preferenze per questo traduttore non esistono, creale
+        if (prefs[this._name] === undefined) {
+            prefs[this._name] = {
+                default_source: "en",
+                default_target: "it",
+                last_source: "",
+                last_target: "",
+                remember_last_lang: true
+            };
+            // Salva le preferenze aggiornate
+            Utils.SETTINGS.set_string(PrefsKeys.TRANSLATORS_PREFS_KEY, JSON.stringify(prefs));
+        }
+
+        let provider_prefs = prefs[this._name];
+        this._default_source = provider_prefs.default_source || "en";
+        this._default_target = provider_prefs.default_target || "it";
+        this._last_source = provider_prefs.last_source || "";
+        this._last_target = provider_prefs.last_target || "";
+        this._remember_last_lang = provider_prefs.remember_last_lang || false;
     }
 
     save_prefs(new_prefs) {

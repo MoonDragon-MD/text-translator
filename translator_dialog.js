@@ -306,6 +306,11 @@ var TranslatorDialog = GObject.registerClass({}, class TranslatorDialog extends 
         });
         this._topbar.actor.x_expand = true;
         this._topbar.actor.x_align = St.Align.MIDDLE;
+		
+        this._topbar.actor.reactive = true; // Rendi la barra superiore interattiva
+        this._topbar.actor.connect('button-press-event', this._onButtonPress.bind(this));
+        this._topbar.actor.connect('motion-event', this._onMotion.bind(this));
+        this._topbar.actor.connect('button-release-event', this._onButtonRelease.bind(this));
 
         this._dialog_menu = new ButtonsBar.ButtonsBar();
         this._dialog_menu.actor.x_expand = true;
@@ -365,6 +370,28 @@ var TranslatorDialog = GObject.registerClass({}, class TranslatorDialog extends 
         this._init_scroll_sync();
     }
 
+    _onButtonPress(actor, event) {
+        let [x, y] = event.get_coords();
+        this._dragStartX = x - this._dialogLayout.x;
+        this._dragStartY = y - this._dialogLayout.y;
+        this._dragging = true;
+        return Clutter.EVENT_PROPAGATE;
+    }
+
+    _onMotion(actor, event) {
+        if (this._dragging) {
+            let [x, y] = event.get_coords();
+            this._dialogLayout.x = x - this._dragStartX;
+            this._dialogLayout.y = y - this._dragStartY;
+        }
+        return Clutter.EVENT_PROPAGATE;
+    }
+
+    _onButtonRelease(actor, event) {
+        this._dragging = false;
+        return Clutter.EVENT_PROPAGATE;
+    }
+	
     _on_source_changed() {
         this._chars_counter.current_length = this._source.length;
 
