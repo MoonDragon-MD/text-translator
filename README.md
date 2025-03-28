@@ -1,3 +1,7 @@
+## BETA test - not work
+Editing test to add Deepl and translateLocally as a translation engine.
+At the moment my changes don't work
+
 ## Looking for maintainer
 Hi all, I'm happy to maintain this repository but I cannot work on it much as I am not using the Gnome desktop anymore.
 I did not write this thing myself, I just kinda hacked it so it could still work after the creator abandoned it.
