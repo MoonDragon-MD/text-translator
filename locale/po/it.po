@@ -1,0 +1,65 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Text Translator GNOME Extension\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-03-28 20:09:26+0000\n"
+"PO-Revision-Date: 2025-03-28 20:09:26+0000\n"
+"Last-Translator: MoonDragon-MD <moondragon.md@example.com>\n"
+"Language-Team: Italian\n"
+"Language: it\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+#: prefs.js:39
+msgid "Deepl API Key:"
+msgstr "Chiave API Deepl:"
+
+#: prefs.js:678
+msgid "Show icon:"
+msgstr "Mostra icona:"
+
+#: prefs.js:680
+msgid "Sync entries scrolling:"
+msgstr "Sincronizza scorrimento:"
+
+#: prefs.js:684
+msgid "Enable shortcuts:"
+msgstr "Abilita scorciatoie:"
+
+#: prefs.js:688
+msgid "Show the most used languages:"
+msgstr "Mostra le lingue più usate:"
+
+#: prefs.js:692
+msgid "Auto speak result:"
+msgstr "Pronuncia automatica risultato:"
+
+#: prefs.js:702
+msgid "Font size:"
+msgstr "Dimensione carattere:"
+
+#: deepl_translation_provider.js:42
+msgid "Deepl: API key not configured or invalid"
+msgstr "Deepl: Chiave API non configurata o non valida"
+
+#: deepl_translation_provider.js:89
+msgid "Deepl: Error in translation request"
+msgstr "Deepl: Errore nella richiesta di traduzione"
+
+#: locally_translation_provider.js:15
+msgid "translateLocally is not installed"
+msgstr "translateLocally non è installato"
+
+#: locally_translation_provider.js:63
+msgid "No model available for translating from %s to %s"
+msgstr "Nessun modello disponibile per tradurre da %s a %s"
+
+#: translators_manager.js:43
+msgid "Loaded translator: %s"
+msgstr "Caricato traduttore: %s"
+
+#: translators_manager.js:146
+msgid "Translator changed to %s (previous one was not available)"
+msgstr "Traduttore cambiato in %s (il precedente non era disponibile)"

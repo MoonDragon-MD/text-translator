@@ -105,9 +105,9 @@
     </key>
 	  
     <key type="s" name="deepl-api-key">
-        <default>'12345'</default>
+        <default>''</default>
         <summary>Deepl API Key</summary>
-        <description>Chiave API per utilizzare il servizio di traduzione Deepl.</description>
+        <description>Chiave API per utilizzare il servizio di traduzione Deepl. Ottienila da https://www.deepl.com/pro-api</description>
     </key>
 
   </schema>

@@ -12,6 +12,7 @@ const St = imports.gi.St;
 const GObject = imports.gi.GObject;
 const Main = imports.ui.main;
 const Clutter = imports.gi.Clutter;
+const Gettext = imports.gettext;
 const ExtensionUtils = imports.misc.extensionUtils;
 const Shell = imports.gi.Shell;
 const Meta = imports.gi.Meta;
@@ -23,6 +24,7 @@ const GLib = imports.gi.GLib;
 const Gio = imports.gi.Gio;
 
 const Me = ExtensionUtils.getCurrentExtension();
+const _ = Me.imports.gettext._;
 const Utils = Me.imports.utils;
 const TranslatorDialog = Me.imports.translator_dialog;
 const StatusBar = Me.imports.status_bar;
@@ -31,6 +33,10 @@ const LanguageChooser = Me.imports.language_chooser;
 const TranslatorsManager = Me.imports.translators_manager;
 const LanguagesStats = Me.imports.languages_stats;
 const PrefsKeys = Me.imports.prefs_keys;
+
+function init() {
+    Me.imports.gettext.initTranslations();
+}
 
 ExtensionUtils.get_text_translator_extension = function() {
     return Me;
@@ -794,33 +800,7 @@ const TranslatorExtension = class TranslatorExtension {
             "Enable/Disable instant translation",
             button_params,
             () => {
-                let checked = button.get_checked();    _get_source_lang_button() {
-        let button_params = {
-            button_style_class: "tranlator-top-bar-button-reactive",
-            statusbar: this._dialog.statusbar
-        };
-        let button = new ButtonsBar.ButtonsBarButton(
-            false,
-            "<u>From: %s</u>".format(
-                this._translators_manager.current.get_language_name(
-                    this._current_source_lang
-                )
-            ),
-            "Choose source language",
-            button_params,
-            () => {
-                this._source_language_chooser.open();
-                this._source_language_chooser.set_languages(
-                    this._translators_manager.current.get_languages()
-                );
-                this._source_language_chooser.show_languages(
-                    this._current_source_lang
-                );
-            }
-        );
-
-        return button;
-    }
+                let checked = button.get_checked();
                 button.set_checked(checked);
 
                 Utils.SETTINGS.set_boolean(

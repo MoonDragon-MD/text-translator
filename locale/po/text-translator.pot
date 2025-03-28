@@ -1,0 +1,51 @@
+#: prefs.js:39
+msgid "Deepl API Key:"
+msgstr ""
+
+#: prefs.js:678
+msgid "Show icon:"
+msgstr ""
+
+#: prefs.js:680
+msgid "Sync entries scrolling:"
+msgstr ""
+
+#: prefs.js:684
+msgid "Enable shortcuts:"
+msgstr ""
+
+#: prefs.js:688
+msgid "Show the most used languages:"
+msgstr ""
+
+#: prefs.js:692
+msgid "Auto speak result:"
+msgstr ""
+
+#: prefs.js:702
+msgid "Font size:"
+msgstr ""
+
+#: deepl_translation_provider.js:42
+msgid "Deepl: API key not configured or invalid"
+msgstr ""
+
+#: deepl_translation_provider.js:89
+msgid "Deepl: Error in translation request"
+msgstr ""
+
+#: locally_translation_provider.js:15
+msgid "translateLocally is not installed"
+msgstr ""
+
+#: locally_translation_provider.js:63
+msgid "No model available for translating from %s to %s"
+msgstr ""
+
+#: translators_manager.js:43
+msgid "Loaded translator: %s"
+msgstr ""
+
+#: translators_manager.js:146
+msgid "Translator changed to %s (previous one was not available)"
+msgstr ""

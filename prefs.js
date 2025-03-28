@@ -23,30 +23,29 @@ const TranslatorProvidersWidget = GObject.registerClass(
                 row_spacing: 10,
                 column_spacing: 10
             });
-            this._rownum = 0; // Explicit initialization
+            this._rownum = 0;
             this._translators_manager = new TranslatorsManager.TranslatorsManager();
-            this.POSITIONS = {
-                translators: { col: 0, row: 0, colspan: 2, rowspan: 1 },
-                default_source_label: { col: 0, row: 1, colspan: 1, rowspan: 1 },
-                default_source: { col: 1, row: 1, colspan: 1, rowspan: 1 },
-                default_target_label: { col: 0, row: 2, colspan: 1, rowspan: 1 },
-                default_target: { col: 1, row: 2, colspan: 1, rowspan: 1 },
-                last_used_label: { col: 0, row: 3, colspan: 1, rowspan: 1 },
-                last_used: { col: 1, row: 3, colspan: 1, rowspan: 1 }
-            };
-
-            // Initialize Deepl API Key field
+            
+            // Aggiungi il campo per la chiave API Deepl
             let deeplApiKeyLabel = new Gtk.Label({
-                label: "Deepl API Key:",
+                label: "Chiave API Deepl:",
                 hexpand: true,
                 halign: Gtk.Align.START
             });
-            let deeplApiKeyEntry = new Gtk.Entry({ hexpand: false });
-            deeplApiKeyEntry.set_text(Utils.SETTINGS.get_string("deepl-api-key"));
+            let deeplApiKeyEntry = new Gtk.Entry({
+                hexpand: true,
+                sensitive: true
+            });
+            
+            // Recupera il valore attuale della chiave API
+            let currentApiKey = Utils.SETTINGS.get_string("deepl-api-key");
+            deeplApiKeyEntry.set_text(currentApiKey || "");
+            
+            // Connetti l'evento changed per salvare la chiave API
             deeplApiKeyEntry.connect("changed", entry => {
                 Utils.SETTINGS.set_string("deepl-api-key", entry.get_text());
             });
-
+            
             this.attach(deeplApiKeyLabel, 0, this._rownum, 1, 1);
             this.attach(deeplApiKeyEntry, 1, this._rownum, 1, 1);
             this._rownum++;
