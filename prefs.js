@@ -15,10 +15,6 @@ ExtensionUtils.get_text_translator_extension = function() {
 
 // Ensure proper usage of fields and initialization of widgets
 const TranslatorProvidersWidget = GObject.registerClass(
-    {
-        Name: "Translator.Providers.Widget",
-        GTypeName: "TranslatorProvidersWidget"
-    },
     class TranslatorProvidersWidget extends Gtk.Grid {
         _init() {
             super._init({
@@ -266,10 +262,6 @@ const TranslatorProvidersWidget = GObject.registerClass(
 );
 
 const TranslatorKeybindingsWidget = GObject.registerClass(
-    {
-        Name: "Translator.Keybindings.Widget",
-        GTypeName: "TranslatorKeybindingsWidget"
-    },
     class TranslatorKeybindingsWidget extends Gtk.Box {
         _init(keybindings) {
             super._init();
@@ -402,10 +394,6 @@ const TranslatorKeybindingsWidget = GObject.registerClass(
 );
 
 const TranslatorPrefsGrid = GObject.registerClass(
-    {
-        Name: "Translator.Prefs.Grid",
-        GTypeName: "TranslatorPrefsGrid"
-    },
     class TranslatorPrefsGrid extends Gtk.Grid {
         _init(params) {
             super._init(params);
@@ -549,17 +537,9 @@ const TranslatorPrefsGrid = GObject.registerClass(
             });
             log('Tipo di label: ' + label.constructor.name); // Dovrebbe stampare "Label"
 
-           // if (label && typeof label.set_wrap === 'function') {
-           //     label.set_wrap(wrap || false);
-           // } else {
-           //     log('Errore: label.set_wrap non è una funzione. Tipo di label: ' + typeof label);
-            }
-
             this.attach(label, 0, this._rownum, 1, 1);
             this.attach(widget, 1, this._rownum, 1, 1);
             this._rownum++;
-
-            return widget;
         }
 
         add_item(widget, col, colspan, rowspan) {
