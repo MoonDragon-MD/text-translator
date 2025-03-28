@@ -794,7 +794,33 @@ const TranslatorExtension = class TranslatorExtension {
             "Enable/Disable instant translation",
             button_params,
             () => {
-                let checked = button.get_checked();
+                let checked = button.get_checked();    _get_source_lang_button() {
+        let button_params = {
+            button_style_class: "tranlator-top-bar-button-reactive",
+            statusbar: this._dialog.statusbar
+        };
+        let button = new ButtonsBar.ButtonsBarButton(
+            false,
+            "<u>From: %s</u>".format(
+                this._translators_manager.current.get_language_name(
+                    this._current_source_lang
+                )
+            ),
+            "Choose source language",
+            button_params,
+            () => {
+                this._source_language_chooser.open();
+                this._source_language_chooser.set_languages(
+                    this._translators_manager.current.get_languages()
+                );
+                this._source_language_chooser.show_languages(
+                    this._current_source_lang
+                );
+            }
+        );
+
+        return button;
+    }
                 button.set_checked(checked);
 
                 Utils.SETTINGS.set_boolean(
