@@ -556,9 +556,22 @@ const TranslatorPrefsGrid = GObject.registerClass(
         }
 
         add_range(label, key, range_properties) {
+            this.attach(
+                widget,
+                col || 0,
+                this._rownum,
+                colspan || 2,
+                rowspan || 1
+            );
+            this._rownum++;
+
+            return widget;
+        }
+
+        add_range(label, key, range_properties) {
             range_properties = Params.parse(range_properties, {
                 min: 0,
-                max: 100,
+                max: 100, add_range(label, key, range_properties) {
                 step: 10,
                 mark_position: 0,
                 add_mark: false,
