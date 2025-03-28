@@ -248,6 +248,12 @@ var TranslationProviderBase = class TranslationProviderBase {
     }
 
     get_languages() {
+        if (this.name === "Locally") {
+            return {
+                "en": "English",
+                "it": "Italian"
+            };
+        }
         return LANGUAGES_LIST;
     }
 
