@@ -1,3 +1,4 @@
+// Ensure the 'Locally' translation feature correctly fetches and uses available models
 const ByteArray = imports.byteArray;
 const Lang = imports.lang;
 const Extension = imports.misc.extensionUtils.get_text_translator_extension();
@@ -22,9 +23,9 @@ var Translator = class Locally extends TranslationProviderBase.TranslationProvid
             throw new Error("Impossibile ottenere i modelli di translateLocally: " + stderr);
         }
         let models = {};
-        let lines = ByteArray.toString(stdout).split("\n");
+        let lines = ByteArray.toString(stdout).split("\\n");
         for (let line of lines) {
-            let match = line.match(/(\w+)-(\w+)\s+type:\s+(\w+)\s+version:\s+(\d+);\s+To invoke do -m (\w+-\w+-\w+)/);
+            let match = line.match(/(\\w+)-(\\w+)\\s+type:\\s+(\\w+)\\s+version:\\s+(\\d+);\\s+To invoke do -m (\\w+-\\w+-\\w+)/);
             if (match) {
                 let [_, src, tgt, type, version, model] = match;
                 if (!models[src]) models[src] = {};
@@ -72,7 +73,7 @@ var Translator = class Locally extends TranslationProviderBase.TranslationProvid
             return;
         }
         let stdinStream = GLib.fdopen(stdin, "w");
-        stdinStream.write(text + "\n");
+        stdinStream.write(text + "\\n");
         stdinStream.close();
         let stdoutStream = GLib.IOChannel.unix_new(stdout);
         stdoutStream.set_encoding(null);

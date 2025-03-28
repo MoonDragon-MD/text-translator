@@ -13,6 +13,7 @@ ExtensionUtils.get_text_translator_extension = function() {
     return Me;
 };
 
+// Ensure proper usage of fields and initialization of widgets
 const TranslatorProvidersWidget = GObject.registerClass(
     {
         Name: "Translator.Providers.Widget",
@@ -26,7 +27,7 @@ const TranslatorProvidersWidget = GObject.registerClass(
                 row_spacing: 10,
                 column_spacing: 10
             });
-            this._rownum = 0; // Inizializzazione esplicita
+            this._rownum = 0; // Explicit initialization
             this._translators_manager = new TranslatorsManager.TranslatorsManager();
             this.POSITIONS = {
                 translators: { col: 0, row: 0, colspan: 2, rowspan: 1 },
@@ -38,7 +39,7 @@ const TranslatorProvidersWidget = GObject.registerClass(
                 last_used: { col: 1, row: 3, colspan: 1, rowspan: 1 }
             };
 
-            // Aggiungi il campo per la chiave API di Deepl
+            // Initialize Deepl API Key field
             let deeplApiKeyLabel = new Gtk.Label({
                 label: "Deepl API Key:",
                 hexpand: true,
@@ -54,7 +55,7 @@ const TranslatorProvidersWidget = GObject.registerClass(
             this.attach(deeplApiKeyEntry, 1, this._rownum, 1, 1);
             this._rownum++;
 
-            // Inizializzazione dei widget rimanenti
+            // Initialize remaining widgets
             let names = this._translators_manager.translators_names;
             this._translators_combo = this._get_combo(names, 0);
             this._translators_combo.set_active_id(names[0]);
@@ -225,12 +226,12 @@ const TranslatorProvidersWidget = GObject.registerClass(
             let source_langs, target_langs;
 
             if (name === "Locally") {
-                // Per translateLocally, ottieni le lingue dai modelli
+                // For translateLocally, get languages from models
                 let models = this._getLocallyModels();
                 source_langs = this._getSourceLanguagesFromModels(models);
                 target_langs = this._getTargetLanguagesFromModels(models, translator.prefs.default_source);
             } else {
-                // Per altri provider (es. Deepl, Google)
+                // For other providers (e.g., Deepl, Google)
                 source_langs = translator.get_languages();
                 target_langs = translator.get_pairs(translator.prefs.default_source);
             }

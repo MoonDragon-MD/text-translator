@@ -23,6 +23,7 @@ var LanguageChooser = GObject.registerClass({
             'language-chose': { param_types: [ String, String ] },
         };
     }
+    // Ensure the LanguageChooser class correctly initializes and updates the language list
     _init(title, languages) {
         super._init({ destroyOnClose: false });
 
@@ -107,7 +108,7 @@ var LanguageChooser = GObject.registerClass({
 
         this.contentLayout.add_actor(this._table);
     }
-
+	
     _on_key_press_event(object, event) {
         let symbol = event.get_key_symbol();
 

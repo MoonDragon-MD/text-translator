@@ -818,9 +818,6 @@ const TranslatorExtension = class TranslatorExtension {
         this._swap_languages_button = this._get_swap_langs_button();
         this._dialog.topbar.add_button(this._swap_languages_button);
 
-        this._translator_toggle_button = this._get_translator_toggle_button();
-        this._dialog.topbar.add_button(this._translator_toggle_button);
-
         this._target_lang_button = this._get_target_lang_button();
         this._dialog.topbar.add_button(this._target_lang_button);
 
@@ -841,6 +838,11 @@ const TranslatorExtension = class TranslatorExtension {
 
         this._translate_button = this._get_translate_button();
         this._dialog.topbar.add_button(this._translate_button);
+
+        // Add the 'Locale' button near the close button
+        this._translator_toggle_button = this._get_translator_toggle_button();
+        this._dialog.topbar.add_button(this._translator_toggle_button);
+
     }
 
     _get_translator_toggle_button() {
