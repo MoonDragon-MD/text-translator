@@ -58,7 +58,7 @@ const TranslatorPanelButton = GObject.registerClass(
     class Button extends PanelMenu.Button {
         _init(translator) {
             super._init(0.0, "text-translator");
-            this.actor.reactive = false;
+            this.reactive = false;
 
             this._translator = translator;
             this._icon = new St.Icon({
@@ -608,14 +608,14 @@ const TranslatorExtension = class TranslatorExtension {
             "Choose source language",
             button_params,
             () => {
-                    this._source_language_chooser.open();
-                    this._source_language_chooser.set_languages(
-                        this._translators_manager.current.get_languages()
-                    );
-                    this._source_language_chooser.show_languages(
-                        this._current_source_lang
-                    );
-                }
+                this._source_language_chooser.open();
+                this._source_language_chooser.set_languages(
+                    this._translators_manager.current.get_languages()
+                );
+                this._source_language_chooser.show_languages(
+                    this._current_source_lang
+                );
+            }
         );
 
         return button;

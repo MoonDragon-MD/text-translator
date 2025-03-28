@@ -45,6 +45,14 @@ var TranslatorsManager = class TranslatorsManager {
         return translators;
     }
 
+    get_languages() {
+        if (this.name === "Locally") {
+            return {
+                "en": "English",
+                "it": "Italian"
+            };
+        }
+		
     get_by_name(name) {
         if (Utils.is_blank(name)) return false;
 
