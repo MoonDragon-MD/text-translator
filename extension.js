@@ -161,7 +161,7 @@ class TextTranslatorIndicator extends PanelMenu.Button {
         this._translatorManager.destroy();
         super.destroy();
     }
-};
+})
 
 const TranslatorExtension = class TranslatorExtension { 
     constructor() {
@@ -647,24 +647,6 @@ const TranslatorExtension = class TranslatorExtension {
             () => {
                 this.close();
                 launch_extension_prefs();
-            }
-        );
-
-        return button;
-    }
-
-    _get_close_button() {
-        let button_params = {
-            button_style_class: "translator-dialog-menu-button",
-            statusbar: this._dialog.statusbar
-        };
-        let button = new ButtonsBar.ButtonsBarButton(
-            Utils.ICONS.shutdown,
-            "",
-            "Quit",
-            button_params,
-            () => {
-                this.close();
             }
         );
 
