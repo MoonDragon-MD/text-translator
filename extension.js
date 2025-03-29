@@ -125,7 +125,7 @@ class TextTranslatorIndicator extends PanelMenu.Button {
         this._sourceLangSelector.menu.removeAll();
         this._targetLangSelector.menu.removeAll();
 
-        let current = this._translatorManager.current;  // Sposta questa riga prima
+        let current = this._translatorManager.current;
         if (!current || !current.get_languages) {
             log("Translator provider does not support language listing");
             return;

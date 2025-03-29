@@ -218,14 +218,22 @@ var TranslationProviderBase = class TranslationProviderBase {
         this._name = name;
         this._limit = limit;
         this._url = url;
+        this.engine = name.split('.')[0].toLowerCase(); // Estrae il nome del motore
         this.prefs = new TranslationProviderPrefs(this._name);
+        this.supported_languages = [];
     }
 
     _validateApiKey(key) {
         return typeof key === 'string' && key.length > 0;
     }
-	
+    
     _get_data_async(url, callback) {
+        if (!_httpSession) {
+            log("Error: _httpSession not initialized");
+            callback("");
+            return;
+        }
+
         let request = Soup.Message.new("GET", url);
 
         _httpSession.queue_message(request, (_httpSession, message) => {
@@ -252,22 +260,20 @@ var TranslationProviderBase = class TranslationProviderBase {
     }
 
     get_languages() {
-        if (this.name === "Locally") {
-            return {
-                "en": "English",
-                "it": "Italian"
-            };
+        let result = {};
+        for (let lang of this.supported_languages) {
+            result[lang.code] = lang.name;
         }
-        return LANGUAGES_LIST;
+        return result;
     }
 
-    get_language_name(lang_code) {
-        return LANGUAGES_LIST[lang_code] || false;
+    get_language_name(code) {
+        let languages = this.get_languages();
+        return languages[code] || code;
     }
 
-    get_pairs(language) {
-        return LANGUAGES_LIST;
-        // throw new Error('Not implemented');
+    get_pairs(source) {
+        return this.get_languages();
     }
 
     parse_response(helper_source_data) {

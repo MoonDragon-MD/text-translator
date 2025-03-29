@@ -63,7 +63,7 @@ var Translator = class Google extends TranslationProviderBase.TranslationProvide
             { code: 'tr', name: 'Turkish' },
             { code: 'uk', name: 'Ukrainian' },
             { code: 'vi', name: 'Vietnamese' },
-            { code: 'zh', name: 'Chinese' }
+            { code: 'zh', name: 'Chinese' },
 			{ code: 'eo', name: 'Esperanto' },
 			{ code: 'gu', name: 'Gujarati' },
 			{ code: 'ha', name: 'Hausa' },

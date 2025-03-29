@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<schemalist gettext-domain="gnome-shell-extensions">
-
-  <schema path="/org/gnome/shell/extensions/text-translator/" id="org.gnome.shell.extensions.text-translator">
+<schemalist>
+  <schema id="org.gnome.shell.extensions.text-translator" path="/org/gnome/shell/extensions/text-translator/">
 
     <key type="as" name="open-translator-dialog-keybinding">
         <default><![CDATA[['<Super>T']]]></default>
@@ -104,11 +103,28 @@
         <default>false</default>
     </key>
 	  
-    <key type="s" name="deepl-api-key">
-        <default>''</default>
-        <summary>Deepl API Key</summary>
-        <description>Chiave API per utilizzare il servizio di traduzione Deepl. Ottienila da https://www.deepl.com/pro-api</description>
+    <key name="yandex-api-key" type="s">
+      <default>''</default>
+      <summary>Yandex Translate API key</summary>
+      <description>API key for Yandex Translate service</description>
     </key>
 
+    <key name="deepl-api-key" type="s">
+      <default>''</default>
+      <summary>DeepL API key</summary>
+      <description>API key for DeepL translation service</description>
+    </key>
+
+    <key type="s" name="source-lang">
+        <default>'auto'</default>
+        <summary>Source language</summary>
+        <description>Last used source language code</description>
+    </key>
+
+    <key type="s" name="target-lang">
+        <default>'it'</default>
+        <summary>Target language</summary>
+        <description>Last used target language code</description>
+    </key>
   </schema>
 </schemalist>
