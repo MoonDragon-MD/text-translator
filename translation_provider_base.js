@@ -1,6 +1,5 @@
 const Soup = imports.gi.Soup;
 const ExtensionUtils = imports.misc.extensionUtils;
-
 const GLib = imports.gi.GLib;
 const Gio = imports.gi.Gio;
 
@@ -10,6 +9,7 @@ const PrefsKeys = Me.imports.prefs_keys;
 
 var _httpSession = Utils._httpSession;
 
+// Lista completa delle lingue supportate
 const LANGUAGES_LIST = {
     auto: "Detect language",
     af: "Afrikaans",
@@ -82,18 +82,10 @@ const LANGUAGES_LIST = {
 var TranslationProviderPrefs = class TranslationProviderPrefs {
     constructor(provider_name) {
         this._name = provider_name;
-
         this._settings_connect_id = Utils.SETTINGS.connect(
             "changed::" + PrefsKeys.TRANSLATORS_PREFS_KEY,
             () => this._load_prefs()
         );
-
-        // this._last_source;
-        // this._last_target;
-        // this._default_source;
-        // this._default_target;
-        // this._remember_last_lang;
-
         this._load_prefs();
     }
 
@@ -106,7 +98,6 @@ var TranslationProviderPrefs = class TranslationProviderPrefs {
             prefs = {};
         }
 
-        // Se le preferenze per questo traduttore non esistono, creale
         if (prefs[this._name] === undefined) {
             prefs[this._name] = {
                 default_source: "en",
@@ -115,7 +106,6 @@ var TranslationProviderPrefs = class TranslationProviderPrefs {
                 last_target: "",
                 remember_last_lang: true
             };
-            // Salva le preferenze aggiornate
             Utils.SETTINGS.set_string(PrefsKeys.TRANSLATORS_PREFS_KEY, JSON.stringify(prefs));
         }
 
@@ -128,13 +118,11 @@ var TranslationProviderPrefs = class TranslationProviderPrefs {
     }
 
     save_prefs(new_prefs) {
-        let json_string = Utils.SETTINGS.get_string(
-            PrefsKeys.TRANSLATORS_PREFS_KEY
-        );
+        let json_string = Utils.SETTINGS.get_string(PrefsKeys.TRANSLATORS_PREFS_KEY);
         let current_prefs = JSON.parse(json_string);
         let temp = {};
 
-        if (current_prefs[this._name] != undefined) {
+        if (current_prefs[this._name] !== undefined) {
             temp = current_prefs[this._name];
         }
 
@@ -143,7 +131,6 @@ var TranslationProviderPrefs = class TranslationProviderPrefs {
         }
 
         current_prefs[this._name] = temp;
-
         Utils.SETTINGS.set_string(
             PrefsKeys.TRANSLATORS_PREFS_KEY,
             JSON.stringify(current_prefs)
@@ -205,8 +192,7 @@ var TranslationProviderPrefs = class TranslationProviderPrefs {
     }
 
     set remember_last_lang(enable) {
-        enable = enable === true ? true : false;
-        this._remember_last_lang = enable;
+        this._remember_last_lang = enable === true;
         this.save_prefs({
             remember_last_lang: enable
         });
@@ -218,7 +204,7 @@ var TranslationProviderBase = class TranslationProviderBase {
         this._name = name;
         this._limit = limit;
         this._url = url;
-        this.engine = name.split('.')[0].toLowerCase(); // Estrae il nome del motore
+        this.engine = name.split('.')[0].toLowerCase();
         this.prefs = new TranslationProviderPrefs(this._name);
         this.supported_languages = [];
     }
@@ -235,7 +221,6 @@ var TranslationProviderBase = class TranslationProviderBase {
         }
 
         let request = Soup.Message.new("GET", url);
-
         _httpSession.queue_message(request, (_httpSession, message) => {
             if (message.status_code === 200) {
                 try {
@@ -251,12 +236,11 @@ var TranslationProviderBase = class TranslationProviderBase {
     }
 
     make_url(source_lang, target_lang, text) {
-        let result = this._url.format(
+        return this._url.format(
             source_lang,
             target_lang,
             encodeURIComponent(text)
         );
-        return result;
     }
 
     get_languages() {
@@ -285,32 +269,26 @@ var TranslationProviderBase = class TranslationProviderBase {
             "trans",
             "-e",
             this.engine,
-            "--show-original",
-            "n",
-            "--show-languages",
-            "n",
-            "--show-prompt-message",
-            "n",
+            "--show-original", "n",
+            "--show-languages", "n",
+            "--show-prompt-message", "n",
             "--no-bidi",
-            "-s",
-            source_lang,
-            "-t",
-            target_lang,
+            "-s", source_lang,
+            "-t", target_lang,
             text
         ];
 
-        log('translating: ' + command.join(' '))
+        log('translating: ' + command.join(' '));
 
         this._exec(command, (out, err) => {
             callback(
                 err
                     ? this._escape_html(
-                          "Please make sure both gawk and translate-shell are installed. Error: " +
-                              err
-                      )
+                        "Please make sure both gawk and translate-shell are installed. Error: " +
+                        err
+                    )
                     : this._escape_translation(out)
             );
-            //   : command.join(' '))
         });
     }
 
@@ -365,7 +343,6 @@ var TranslationProviderBase = class TranslationProviderBase {
             const [chunk, length] = out_reader.read_upto_finish(res);
             if (chunk !== null) {
                 output += chunk + "\n";
-                // output+= ".,"+chunk+",."+ (typeof chunk)+'||'+length+'\n';
                 out_reader.read_line_async(null, null, _SocketRead);
             } else {
                 exec_cb && exec_cb(output);
