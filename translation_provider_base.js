@@ -221,6 +221,10 @@ var TranslationProviderBase = class TranslationProviderBase {
         this.prefs = new TranslationProviderPrefs(this._name);
     }
 
+    _validateApiKey(key) {
+        return typeof key === 'string' && key.length > 0;
+    }
+	
     _get_data_async(url, callback) {
         let request = Soup.Message.new("GET", url);
 

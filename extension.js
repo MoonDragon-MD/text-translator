@@ -7,7 +7,10 @@
         }
     );
 })();
-
+const CONNECTION_IDS = {
+    show_icon: 0,
+    enable_shortcuts: 0
+};
 const St = imports.gi.St;
 const GObject = imports.gi.GObject;
 const Main = imports.ui.main;
@@ -35,7 +38,15 @@ const LanguagesStats = Me.imports.languages_stats;
 const PrefsKeys = Me.imports.prefs_keys;
 
 let textTranslator;
+const TRIGGERS = {
+    translate: true
+};
 
+const TIMEOUT_IDS = {
+    instant_translation: 0
+};
+
+const INSTANT_TRANSLATION_DELAY = 1000; // 1 secondo
 const TextTranslatorIndicator = GObject.registerClass(
 class TextTranslatorIndicator extends PanelMenu.Button {
     _init() {
@@ -114,8 +125,12 @@ class TextTranslatorIndicator extends PanelMenu.Button {
         this._sourceLangSelector.menu.removeAll();
         this._targetLangSelector.menu.removeAll();
 
-        let current = this._translatorManager.current;
-        if (!current) return;
+        let current = this._translatorManager.current;  // Sposta questa riga prima
+        if (!current || !current.get_languages) {
+            log("Translator provider does not support language listing");
+            return;
+        }
+        const languages = current.get_languages();
 
         // Aggiungi "Auto" solo per la lingua sorgente
         let autoItem = new PopupMenu.PopupMenuItem(_("Auto-detect"));
@@ -634,24 +649,24 @@ const TranslatorExtension = class TranslatorExtension {
         return button;
     }
 
-    _get_prefs_button() {
-        let button_params = {
-            button_style_class: "translator-dialog-menu-button",
-            statusbar: this._dialog.statusbar
-        };
-        let button = new ButtonsBar.ButtonsBarButton(
-            Utils.ICONS.preferences,
-            "",
-            "Preferences",
-            button_params,
-            () => {
-                this.close();
-                launch_extension_prefs();
-            }
-        );
+	_get_prefs_button() {
+		let button_params = {
+			button_style_class: "translator-dialog-menu-button",
+			statusbar: this._dialog.statusbar
+		};
+		let button = new ButtonsBar.ButtonsBarButton(
+			Utils.ICONS.preferences,
+			"",
+			"Preferences",
+			button_params,
+			() => {
+				this.close();
+				ExtensionUtils.openPrefs();  
+			}
+		);
 
-        return button;
-    }
+		return button;
+	}
 
     _get_instant_translation_button() {
         let button_params = {
@@ -873,7 +888,7 @@ const TranslatorExtension = class TranslatorExtension {
 
     _add_panel_button() {
         if (!this._panel_button) {
-            this._panel_button = new TranslatorPanelButton(this);
+            this._panel_button = new TextTranslatorIndicator(this);
             Main.panel.addToStatusArea("text-translator", this._panel_button);
         }
     }
