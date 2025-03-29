@@ -58,6 +58,18 @@ class TextTranslatorIndicator extends PanelMenu.Button {
         });
         this.add_child(this.icon);
 
+        // Aggiungi voce menù per aprire l'interfaccia
+        let openItem = new PopupMenu.PopupMenuItem(_("Open Translator"));
+        openItem.connect('activate', () => {
+            if (translator) {
+                translator.open();
+            }
+        });
+        this.menu.addMenuItem(openItem);
+
+        // Aggiunge un separatore
+        this.menu.addMenuItem(new PopupMenu.PopupSeparatorMenuItem());
+
         // Menu per la selezione del traduttore
         this._translatorSelector = new PopupMenu.PopupSubMenuMenuItem(_("Select Translator"));
         this.menu.addMenuItem(this._translatorSelector);
@@ -1007,11 +1019,17 @@ function init() {
 }
 
 function enable() {
-    textTranslator = new TextTranslatorIndicator();
-    Main.panel.addToStatusArea('text-translator', textTranslator);
+    // Non creare un nuovo indicatore se esiste già
+    if (!textTranslator) {
+        textTranslator = new TextTranslatorIndicator();
+        Main.panel.addToStatusArea('text-translator', textTranslator);
+    }
 
-    translator = new TranslatorExtension();
-    translator.enable();
+    // Crea il traduttore se non esiste
+    if (!translator) {
+        translator = new TranslatorExtension();
+        translator.enable();
+    }
 }
 
 function disable() {

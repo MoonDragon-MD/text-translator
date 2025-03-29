@@ -4,23 +4,30 @@
 
     <key type="as" name="open-translator-dialog-keybinding">
         <default><![CDATA[['<Super>T']]]></default>
+        <summary>Open translator shortcut</summary>
+        <description>Keyboard shortcut to open the translator dialog</description>
     </key>
 
     <key type="as" name="translate-from-clipboard-keybinding">
         <default><![CDATA[['<Super><Shift>T']]]></default>
+        <summary>Translate clipboard shortcut</summary>
+        <description>Keyboard shortcut to translate text from clipboard</description>
     </key>
 
     <key type="as" name="translate-from-selection-keybinding">
         <default><![CDATA[['<Super><Alt>T']]]></default>
+        <summary>Translate selection shortcut</summary>
+        <description>Keyboard shortcut to translate selected text</description>
     </key>
 
     <key type="s" name="default-translator">
-	    <default>'Google.Translate'</default>
+        <default>'Google.Translate'</default>
+        <summary>Default translator</summary>
+        <description>The default translation service to use</description>
     </key>
 
     <key type="s" name="translators-prefs">
-	    <default>
-        '
+        <default>'
         {
            "Google.Translate":{
               "default_source":"en",
@@ -51,68 +58,93 @@
               "remember_last_lang": true
            }
         }
-        '
-        </default>
+        '</default>
+        <summary>Translator preferences</summary>
+        <description>Preferences for each translation service</description>
     </key>
 
     <key type="s" name="languages-stats">
         <default>'{}'</default>
+        <summary>Language statistics</summary>
+        <description>Statistics about language usage</description>
     </key>
 
     <key type="s" name="last-translator">
         <default>''</default>
+        <summary>Last used translator</summary>
+        <description>The last translation service that was used</description>
     </key>
 
     <key type="b" name="remember-last-translator">
         <default>false</default>
+        <summary>Remember last translator</summary>
+        <description>Remember and restore the last used translation service</description>
     </key>
 
     <key type="b" name="enable-instant-translation">
         <default>true</default>
+        <summary>Enable instant translation</summary>
+        <description>Translate text as you type</description>
     </key>
 
     <key type="b" name="enable-shortcuts">
         <default>true</default>
+        <summary>Enable shortcuts</summary>
+        <description>Enable keyboard shortcuts for translation</description>
     </key>
 
     <key type="b" name="show-most-used">
         <default>true</default>
+        <summary>Show most used</summary>
+        <description>Show most frequently used languages</description>
     </key>
 
     <key type="b" name="show-icon">
         <default>true</default>
+        <summary>Show icon</summary>
+        <description>Show translator icon in the top panel</description>
     </key>
 
     <key type="b" name="sync-entries-scrolling">
         <default>false</default>
+        <summary>Sync scrolling</summary>
+        <description>Synchronize scrolling between source and target text</description>
     </key>
 
     <key type="i" name="width-percents">
         <default>80</default>
+        <summary>Window width</summary>
+        <description>Width of the translator window as percentage of screen width</description>
     </key>
 
     <key type="i" name="height-percents">
         <default>60</default>
+        <summary>Window height</summary>
+        <description>Height of the translator window as percentage of screen height</description>
     </key>
 
     <key type="i" name="font-size">
         <default>15</default>
+        <summary>Font size</summary>
+        <description>Font size for the translator text</description>
     </key>
 
     <key type="b" name="enable-auto-speak">
         <default>false</default>
+        <summary>Enable auto-speak</summary>
+        <description>Automatically speak translated text</description>
     </key>
-	  
+      
     <key name="yandex-api-key" type="s">
-      <default>''</default>
-      <summary>Yandex Translate API key</summary>
-      <description>API key for Yandex Translate service</description>
+        <default>''</default>
+        <summary>Yandex Translate API key</summary>
+        <description>API key for Yandex Translate service</description>
     </key>
 
     <key name="deepl-api-key" type="s">
-      <default>''</default>
-      <summary>DeepL API key</summary>
-      <description>API key for DeepL translation service</description>
+        <default>''</default>
+        <summary>DeepL API key</summary>
+        <description>API key for DeepL translation service</description>
     </key>
 
     <key type="s" name="source-lang">
