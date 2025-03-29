@@ -271,13 +271,11 @@ var TranslatorDialog = GObject.registerClass({}, class TranslatorDialog extends 
     _init(text_translator) {
         super._init({
             shellReactive: true,
-            destroyOnClose: false,
-            modal: false // Permette l'interazione con altre finestre
+            destroyOnClose: false
+            // rimuoviamo il parametro modal che causa l'errore
         });
 
         this._text_translator = text_translator;
-        this._dragStartX = 0;
-        this._dragStartY = 0;
 
         this._dialogLayout =
             typeof this.dialogLayout === "undefined"
@@ -285,37 +283,38 @@ var TranslatorDialog = GObject.registerClass({}, class TranslatorDialog extends 
                 : this.dialogLayout;
         this._dialogLayout.set_style_class_name("translator-box");
 
-        // Inizializza gli elementi base
-        this._initBaseElements();
-        // Inizializza la barra superiore
-        this._initTopBar();
-        // Inizializza il menu di dialogo
-        this._initDialogMenu();
-        // Inizializza la griglia principale
-        this._initMainGrid();
-        // Inizializza la barra più usata e la sincronizzazione dello scroll
-        this._init_most_used_bar();
-        this._init_scroll_sync();
-
-        // Aggiunge funzionalità di trascinamento
-        this._setupDraggable();
-    }
-
-    _setupDraggable() {
-        this._draggable = true;
+        // Aggiungiamo il supporto al drag
         this._dragGrabbed = false;
+        this._dragStartX = 0;
+        this._dragStartY = 0;
 
         this._topbar.actor.reactive = true;
         this._topbar.actor.connect('button-press-event', (actor, event) => {
             if (event.get_button() === 1) { // Click sinistro
                 this._dragGrabbed = true;
                 [this._dragStartX, this._dragStartY] = event.get_coords();
-                let [windowX, windowY] = this._dialogLayout.get_position();
-                this._dragOffsetX = windowX - this._dragStartX;
-                this._dragOffsetY = windowY - this._dragStartY;
                 return Clutter.EVENT_STOP;
             }
             return Clutter.EVENT_PROPAGATE;
+        });
+
+        this._topbar.actor.connect('motion-event', (actor, event) => {
+            if (this._dragGrabbed) {
+                let [newX, newY] = event.get_coords();
+                let deltaX = newX - this._dragStartX;
+                let deltaY = newY - this._dragStartY;
+                let [currentX, currentY] = this._dialogLayout.get_position();
+                this._dialogLayout.set_position(currentX + deltaX, currentY + deltaY);
+                this._dragStartX = newX;
+                this._dragStartY = newY;
+                return Clutter.EVENT_STOP;
+            }
+            return Clutter.EVENT_PROPAGATE;
+        });
+
+        this._topbar.actor.connect('button-release-event', () => {
+            this._dragGrabbed = false;
+            return Clutter.EVENT_STOP;
         });
 
         this._topbar.actor.connect('motion-event', (actor, event) => {

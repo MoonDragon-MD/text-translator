@@ -2,15 +2,14 @@ const ByteArray = imports.byteArray;
 const Lang = imports.lang;
 const ExtensionUtils = imports.misc.extensionUtils;
 const Me = ExtensionUtils.getCurrentExtension();
-const TranslationProviderBase = Me.imports.translation_provider_base;
+const TranslationProviderBase = Me.imports.translation_provider_base.TranslationProviderBase;
 const GLib = imports.gi.GLib;
 const _ = Me.imports.gettext._;
-const TranslationProviderBase = Me.imports.translation_provider_base.TranslationProviderBase;
 const Gio = imports.gi.Gio;
 
 const ENGINE = "Locally";
 
-var Translator = class Locally extends TranslationProviderBase.TranslationProviderBase {
+var Translator = class Locally extends TranslationProviderBase {
     constructor() {
         super(ENGINE + ".Translate");
         this.engine = ENGINE;
@@ -79,22 +78,21 @@ var Translator = class Locally extends TranslationProviderBase.TranslationProvid
     }
 	
     translateFile(inputPath, sourceLang, targetLang) {
-        // Normalizza i codici lingua
-        sourceLang = sourceLang.toLowerCase();
-        targetLang = targetLang.toLowerCase();
-
-        // Determina il modello da usare
-        let model = this.models[sourceLang] && this.models[sourceLang][targetLang];
-        if (!model) {
-            log(`No direct model available for ${sourceLang} to ${targetLang}`);
-            return null;
-        }
-
-        // Crea il percorso del file di output
-        let outputPath = inputPath.slice(0, inputPath.lastIndexOf('.')) + 
-                        '_translateLocally-' + sourceLang + '-' + targetLang + '.txt';
-        
         try {
+            // Normalizza i codici lingua
+            sourceLang = sourceLang.toLowerCase();
+            targetLang = targetLang.toLowerCase();
+
+            // Trova il modello appropriato
+            let model = this.models[sourceLang] && this.models[sourceLang][targetLang];
+            if (!model) {
+                throw new Error(_("No model available for this language pair"));
+            }
+
+            // Crea il percorso del file di output
+            let outputPath = inputPath.slice(0, inputPath.lastIndexOf('.')) + 
+                           '_translateLocally-' + sourceLang + '-' + targetLang + '.txt';
+
             // Verifica che il file di input esista
             let inputFile = Gio.File.new_for_path(inputPath);
             if (!inputFile.query_exists(null)) {
@@ -109,15 +107,9 @@ var Translator = class Locally extends TranslationProviderBase.TranslationProvid
                 throw new Error(ByteArray.toString(stderr));
             }
 
-            // Verifica che il file di output sia stato creato
-            let outputFile = Gio.File.new_for_path(outputPath);
-            if (!outputFile.query_exists(null)) {
-                throw new Error(_("Failed to create output file"));
-            }
-
             return outputPath;
         } catch (e) {
-            log(`Error translating file: ${e.message}`);
+            log("Error translating file: " + e.message);
             return null;
         }
     }
