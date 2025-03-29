@@ -15,3 +15,5 @@ var FONT_SIZE_KEY = "font-size";
 var LANGUAGES_STATS_KEY = "languages-stats";
 var SHOW_MOST_USED_KEY = "show-most-used";
 var ENABLE_AUTO_SPEAK_KEY = "enable-auto-speak";
+var SOURCE_LANG_KEY = "source-lang";
+var TARGET_LANG_KEY = "target-lang";
