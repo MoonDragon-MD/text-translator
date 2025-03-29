@@ -5,6 +5,8 @@ const Me = ExtensionUtils.getCurrentExtension();
 const TranslationProviderBase = Me.imports.translation_provider_base;
 const GLib = imports.gi.GLib;
 const _ = Me.imports.gettext._;
+const TranslationProviderBase = Me.imports.translation_provider_base.TranslationProviderBase;
+const Gio = imports.gi.Gio;
 
 const ENGINE = "Locally";
 
@@ -74,6 +76,57 @@ var Translator = class Locally extends TranslationProviderBase.TranslationProvid
 
         // Nessun percorso disponibile
         callback(null, _("No model available to translate from %s to %s").format(source_lang, target_lang));
+    }
+	
+    translateFile(inputPath, sourceLang, targetLang) {
+        // Normalizza i codici lingua
+        sourceLang = sourceLang.toLowerCase();
+        targetLang = targetLang.toLowerCase();
+
+        // Determina il modello da usare
+        let model = this.models[sourceLang] && this.models[sourceLang][targetLang];
+        if (!model) {
+            log(`No direct model available for ${sourceLang} to ${targetLang}`);
+            return null;
+        }
+
+        // Crea il percorso del file di output
+        let outputPath = inputPath.slice(0, inputPath.lastIndexOf('.')) + 
+                        '_translateLocally-' + sourceLang + '-' + targetLang + '.txt';
+        
+        try {
+            // Verifica che il file di input esista
+            let inputFile = Gio.File.new_for_path(inputPath);
+            if (!inputFile.query_exists(null)) {
+                throw new Error(_("Input file does not exist"));
+            }
+
+            // Esegui la traduzione
+            let command = `cat "${inputPath}" | translateLocally -m ${model} > "${outputPath}"`;
+            let [success, stdout, stderr, exit_status] = GLib.spawn_command_line_sync(command);
+
+            if (!success || exit_status !== 0) {
+                throw new Error(ByteArray.toString(stderr));
+            }
+
+            // Verifica che il file di output sia stato creato
+            let outputFile = Gio.File.new_for_path(outputPath);
+            if (!outputFile.query_exists(null)) {
+                throw new Error(_("Failed to create output file"));
+            }
+
+            return outputPath;
+        } catch (e) {
+            log(`Error translating file: ${e.message}`);
+            return null;
+        }
+    }
+
+    // Metodo per verificare se un file può essere tradotto
+    canTranslateFile(sourceLang, targetLang) {
+        sourceLang = sourceLang.toLowerCase();
+        targetLang = targetLang.toLowerCase();
+        return !!(this.models[sourceLang] && this.models[sourceLang][targetLang]);
     }
 
     _translateWithModel(model, text, callback) {

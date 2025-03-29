@@ -270,11 +270,14 @@ log("TranslatorDialog");
 var TranslatorDialog = GObject.registerClass({}, class TranslatorDialog extends ModalDialog.ModalDialog {
     _init(text_translator) {
         super._init({
-            shellReactive: false,
-            destroyOnClose: false
+            shellReactive: true,
+            destroyOnClose: false,
+            modal: false // Permette l'interazione con altre finestre
         });
 
         this._text_translator = text_translator;
+        this._dragStartX = 0;
+        this._dragStartY = 0;
 
         this._dialogLayout =
             typeof this.dialogLayout === "undefined"
@@ -282,14 +285,72 @@ var TranslatorDialog = GObject.registerClass({}, class TranslatorDialog extends 
                 : this.dialogLayout;
         this._dialogLayout.set_style_class_name("translator-box");
 
+        // Inizializza gli elementi base
+        this._initBaseElements();
+        // Inizializza la barra superiore
+        this._initTopBar();
+        // Inizializza il menu di dialogo
+        this._initDialogMenu();
+        // Inizializza la griglia principale
+        this._initMainGrid();
+        // Inizializza la barra più usata e la sincronizzazione dello scroll
+        this._init_most_used_bar();
+        this._init_scroll_sync();
+
+        // Aggiunge funzionalità di trascinamento
+        this._setupDraggable();
+    }
+
+    _setupDraggable() {
+        this._draggable = true;
+        this._dragGrabbed = false;
+
+        this._topbar.actor.reactive = true;
+        this._topbar.actor.connect('button-press-event', (actor, event) => {
+            if (event.get_button() === 1) { // Click sinistro
+                this._dragGrabbed = true;
+                [this._dragStartX, this._dragStartY] = event.get_coords();
+                let [windowX, windowY] = this._dialogLayout.get_position();
+                this._dragOffsetX = windowX - this._dragStartX;
+                this._dragOffsetY = windowY - this._dragStartY;
+                return Clutter.EVENT_STOP;
+            }
+            return Clutter.EVENT_PROPAGATE;
+        });
+
+        this._topbar.actor.connect('motion-event', (actor, event) => {
+            if (this._dragGrabbed) {
+                let [newX, newY] = event.get_coords();
+                this.moveToPosition(
+                    newX + this._dragOffsetX,
+                    newY + this._dragOffsetY
+                );
+                return Clutter.EVENT_STOP;
+            }
+            return Clutter.EVENT_PROPAGATE;
+        });
+
+        this._topbar.actor.connect('button-release-event', () => {
+            this._dragGrabbed = false;
+            return Clutter.EVENT_STOP;
+        });
+    }
+
+    moveToPosition(x, y) {
+        this._dialogLayout.set_position(x, y);
+    }
+
+    _initBaseElements() {
+        // Inizializza source e target entry
         this._source = new SourceEntry();
+        this._target = new TargetEntry();
+        
         this._source.clutter_text.connect("text-changed", () =>
             this._on_source_changed()
         );
         this._source.connect("max-length-changed", () => {
             this._chars_counter.max_length = this._source.max_length;
         });
-        this._target = new TargetEntry();
         this._target.clutter_text.connect("text-changed", () =>
             this._on_target_changed()
         );
@@ -301,32 +362,17 @@ var TranslatorDialog = GObject.registerClass({}, class TranslatorDialog extends 
             show_most_used: 0
         };
 
-        this._topbar = new ButtonsBar.ButtonsBar({
-            style_class: "translator-top-bar-box"
-        });
-        this._topbar.actor.x_expand = true;
-        this._topbar.actor.x_align = St.Align.MIDDLE;
-		
-        this._topbar.actor.reactive = true; // Rendi la barra superiore interattiva
-        this._topbar.actor.connect('button-press-event', this._onButtonPress.bind(this));
-        this._topbar.actor.connect('motion-event', this._onMotion.bind(this));
-        this._topbar.actor.connect('button-release-event', this._onButtonRelease.bind(this));
-
-        this._dialog_menu = new ButtonsBar.ButtonsBar();
-        this._dialog_menu.actor.x_expand = true;
-        this._dialog_menu.actor.y_expand = true;
-        this._dialog_menu.actor.x_align = St.Align.END;
-        this._dialog_menu.actor.y_align = St.Align.MIDDLE;
-
+        // Inizializza altri elementi
         this._statusbar = new StatusBar.StatusBar();
         this._statusbar.actor.x_align = St.Align.END;
         this._statusbar.actor.set_style('height: 30px');
         this._most_used_bar = false;
 
         this._chars_counter = new CharsCounter.CharsCounter();
-        // this._chars_counter.
-
         this._google_tts = new GoogleTTS.GoogleTTS();
+        // Inizializza i pulsanti di ascolto
+        this._initListenButtons();
+        // da ricontrollare
         this._listen_source_button = new ListenButton();
         this._listen_source_button.hide();
         this._listen_source_button.actor.connect("clicked", () => {
@@ -464,6 +510,35 @@ var TranslatorDialog = GObject.registerClass({}, class TranslatorDialog extends 
         this._statusbar.remove_message(message_id);
         return result;
     }
+	
+    _get_close_button() {
+        let button_params = {
+            button_style_class: "translator-dialog-menu-button",
+            statusbar: this._dialog.statusbar
+        };
+        
+        let button = new ButtonsBar.ButtonsBarButton(
+            Utils.ICONS.close,
+            "",
+            "Close dialog",
+            button_params,
+            () => {
+                this.close();
+            }
+        );
+
+        // ESC key handling
+        this.connect('key-press-event', (actor, event) => {
+            let symbol = event.get_key_symbol();
+            if (symbol === Clutter.KEY_Escape) {
+                this.close();
+                return Clutter.EVENT_STOP;
+            }
+            return Clutter.EVENT_PROPAGATE;
+        });
+
+        return button;
+    }
 
     _resize() {
         let width_percents = Utils.SETTINGS.get_int(
@@ -567,8 +642,11 @@ var TranslatorDialog = GObject.registerClass({}, class TranslatorDialog extends 
     }
 
     close() {
-        this._statusbar.clear();
+        if (this._panel_button) {
+            this._panel_button.set_focus(false);
+        }
         super.close();
+        this.emit('closed');
     }
 
     destroy() {

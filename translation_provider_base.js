@@ -207,6 +207,11 @@ var TranslationProviderBase = class TranslationProviderBase {
         this.engine = name.split('.')[0].toLowerCase();
         this.prefs = new TranslationProviderPrefs(this._name);
         this.supported_languages = [];
+        // Add "auto" to supported languages
+        this.supported_languages.unshift({
+            code: "auto",
+            name: "Auto Detect"
+        });
     }
 
     _validateApiKey(key) {
@@ -248,6 +253,8 @@ var TranslationProviderBase = class TranslationProviderBase {
         for (let lang of this.supported_languages) {
             result[lang.code] = lang.name;
         }
+        // Ensure "auto" is always available
+        result["auto"] = "Auto Detect";
         return result;
     }
 

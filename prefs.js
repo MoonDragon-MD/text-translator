@@ -819,12 +819,19 @@ const TextTranslatorPrefsWidget = GObject.registerClass(
 );
 
 function init() {
-    // nothing
+    ExtensionUtils.initTranslations();
 }
 
 function buildPrefsWidget() {
-    let widget = new TextTranslatorPrefsWidget();
-    widget.show();
-
-    return widget;
+    let settings = ExtensionUtils.getSettings();
+    let prefsWidget = new Gtk.Box({
+        orientation: Gtk.Orientation.VERTICAL,
+        margin_top: 10,
+        margin_bottom: 10,
+        margin_start: 10,
+        margin_end: 10,
+        spacing: 10
+    });
+    
+    return prefsWidget;
 }
