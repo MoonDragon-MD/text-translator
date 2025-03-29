@@ -165,10 +165,10 @@ class TextTranslatorIndicator extends PanelMenu.Button {
 
         this._sourceLangSelector.label.text = currentSource === 'auto' 
             ? _("Source: Auto-detect")
-            : _("Source: %s").format(_(current.getLanguageName(currentSource)));
+            : _("Source: %s").format(_(current.get_language_name(currentSource)));
 
         this._targetLangSelector.label.text = _("Target: %s").format(
-            _(current.getLanguageName(currentTarget))
+            _(current.get_language_name(currentTarget))
         );
     }
 
